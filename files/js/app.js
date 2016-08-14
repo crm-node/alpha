@@ -1,4 +1,4 @@
-var app = angular.module('vilkaApp', ['ngRoute', 'ngSanitize', 'ngAnimate']);
+var app = angular.module('crmApp', ['ngRoute', 'ngSanitize', 'ngAnimate', 'ngCookies']);
 
 app.config(['$routeProvider', '$locationProvider', '$httpProvider',
     function ($routeProvider, $locationProvider, $httpProvider) {
@@ -7,12 +7,12 @@ app.config(['$routeProvider', '$locationProvider', '$httpProvider',
                 templateUrl: '/html/home.html',
                 controller: 'homeController'
             });
-        $httpProvider.interceptors.push(['$q', '$location', '$cookieStore', function($q, $location, $cookieStore, $rootScope) {
+        $httpProvider.interceptors.push(['$q', '$location', '$cookies', '$rootScope', function($q, $location, $cookies, $rootScope) {
             return {
                 'request': function (config) {
                     config.headers = config.headers || {};
                     config.timeout = 15000;
-                    var token = $cookieStore.get('token');
+                    var token = $cookies.get('token');
                     if (token) {
                         config.headers.Authorization = token;
                     }
@@ -46,8 +46,8 @@ app.run(['$rootScope', '$timeout',
     }
 ]);
 
-app.controller('mainController', ['$http', '$routeParams', '$scope', '$rootScope', '$sce', 'mainService',
-    function($http, $routeParams, $scope, $rootScope, $sce, mainService) {
+app.controller('mainController', ['$http', '$routeParams', '$scope', '$rootScope', '$sce',
+    function($http, $routeParams, $scope, $rootScope, $sce) {
         
     }
 ]);
