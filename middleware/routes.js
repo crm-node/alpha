@@ -58,7 +58,6 @@ module.exports = function (app, fs) {
         }
     });
 
-
     app.post('/api/logout', function (req, res) {
         if (req.headers.authorization == undefined) {
             res.send({error: true, message: 'Authorizatioin token required', error_code: 'auth_1'}).end();
@@ -78,8 +77,6 @@ module.exports = function (app, fs) {
             });
         }
     });
-
-
 
     app.post('/api/getUsers', function (req, res) {
         if (req.headers.authorization == undefined) {
@@ -232,9 +229,6 @@ module.exports = function (app, fs) {
         }
     });
 
-
-
-
     app.post('/api/getClients', function (req, res) {
         if (req.headers.authorization == undefined) {
             res.send({error: true, message: 'Authorizatioin token required', error_code: 'auth_1'}).end();
@@ -374,9 +368,6 @@ module.exports = function (app, fs) {
             });
         }
     });
-
-
-
 
 
 
