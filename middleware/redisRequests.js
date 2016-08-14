@@ -1,110 +1,93 @@
 /**
  * Created by Mark Sarukhanov on 29.07.2016.
  */
+var uuid = require('node-uuid');
 
 module.exports = {
-    storeEvent : function (event_id, param, object, callback) {
+
+    storeData : function (customer_id, what, data, callback) {
         if(!callback) callback = function (err, keys) {
             if (err) return console.error(err);
         };
-        switch (param) {
-            case '':
-                client.set('' + event_id, object, callback);
+        switch (what) {
+            case 'customer':
+                data = JSON.stringify(data);
+                client.hset('customer:', customer_id, data, callback);
                 break;
-            case 'pricelist':
-                client.set('' + event_id + ':pricelist', object, callback);
+            case 'clients-list-add':
+                data = JSON.stringify(data);
+                client.hset('customer:' + customer_id + ':clients:', "" + uuid.v4(), "" + data, callback);
                 break;
-            case 'updated':
-                client.set('' + event_id + ':updated', object, callback);
+            case 'user':
+                data = JSON.stringify(data);
+                client.hset('customer:' + customer_id + ':users:', "" + uuid.v4(), data, callback);
+                break;
+            case 'transactions':
+                data.user_id = JSON.stringify(data.user_id);
+                data.transaction = JSON.stringify(data.transaction);
+                client.hset('customer:' + customer_id + ':users:' + data.user_id + ':transaction:'  , "" + data.uuid.v4(), "" + data.transaction, callback);
                 break;
             default :
-                client.hset('' + event_id + ':price:' + param + '', "" + object[0], "" + object[1], callback);
+                callback({error: true, message: 'Invalid request'});
                 break;
         }
     },
 
-    getEvent : function(event_id, param, callback) {
-        switch (param) {
-            case '':
-                callback = callback || function(err, object) {
-                        if (err) return console.log(err);
-                        else {
-                            var vilkas = JSON.parse(object);
-                            console.log("vilkas : ", vilkas);
-                        }
-                    };
-                client.get('' + event_id, callback);
+    getData : function(customer_id, what, data, callback) {
+        if(!callback) callback = function (err, keys) {
+            if (err) return console.error(err);
+        };
+        switch (what) {
+            case 'customer':
+                client.hget('customer:', customer_id, callback);
                 break;
-            case 'pricelist':
-                callback = callback || function(err, object) {
-                        if (err) return console.log(err);
-                        else {
-                            console.log("pricelist : ", object.split(","))
-                        }
-                    };
-                //console.log('' + event_id + ':pricelist')
-                client.get('' + event_id + ':pricelist', callback);
+            case 'customers':
+                client.hgetall('customer:', callback);
                 break;
-            case 'updated':
-                callback = callback || function(err, object) {
-                        if (err) return console.log(err);
-                        else {
-                            //console.log("updated : ", object);
-                        }
-                    };
-                client.get('' + event_id + ':updated', callback);
+            case 'clients-get':
+                client.hgetall('customer:' + customer_id + ':clients:', callback);
+                break;
+            case 'client-get':
+                client.hget('customer:' + customer_id + ':clients:', data.client_id, callback);
+                break;
+            case 'user':
+                client.hget('customer:' + customer_id + ':users:', data.user_id, callback);
+                break;
+            case 'users':
+                client.hgetall('customer:' + customer_id + ':users:', callback);
+                break;
+            case 'transactions':
+                client.hget('customer:' + customer_id + ':users:' + data.user_id + ':transaction:' + data.transaction_id, callback);
                 break;
             default :
-                callback = callback || function(err, object) {
-                        if (err) return console.error(err);
-                        else {
-                            //console.log("event_id:price:price_id : ", event_id, param, object);
-                        }
-                    };
-                client.hgetall('' + event_id + ':price:' + param + '', callback);
+                callback({error: true, message: 'Invalid request'});
                 break;
         }
     },
 
-    deleteEvent : function(event_id, param, callback) {
-        switch (param) {
-            case '':
-                callback = callback || function(err, object) {
-                        if (err) return console.log(err);
-                        else {
-                            var vilkas = JSON.parse(object);
-                            //console.log("vilkas : ", vilkas);
-                        }
-                    };
-                client.del('' + event_id, callback);
+    deleteEvent : function(customer_id, what, data, callback) {
+        if(!callback) callback = function (err, keys) {
+            if (err) return console.error(err);
+        };
+        client.del('' + event_id, callback);
+        client.hdel('' + event_id + ':price:' + param + '', "" + object[0], callback);
+        switch (what) {
+            case 'customer':
+                client.hdel('customer:', customer_id, callback);
                 break;
-            case 'pricelist':
-                callback = callback || function(err, object) {
-                        if (err) return console.log(err);
-                        else {
-                            console.log("pricelist : ", object.split(","))
-                        }
-                    };
-                client.del('' + event_id + ':pricelist', callback);
+            case 'clients-list-get':
+                client.hdel('customer:' + customer_id + ':clients:', data.client_id, callback);
                 break;
-            case 'updated':
-                callback = callback || function(err, object) {
-                        if (err) return console.log(err);
-                        else {
-                            //console.log("updated : ", object);
-                        }
-                    };
-                client.del('' + event_id + ':updated', callback);
+            case 'users':
+                client.hdel('customer:' + customer_id + ':users:', data.user_id, callback);
+                break;
+            case 'transactions':
+                client.hdel('customer:' + customer_id + ':users:' + data.user_id + ':transaction:', data.transaction_id, callback);
                 break;
             default :
-                callback = callback || function(err, object) {
-                        if (err) return console.error(err);
-                        else {
-                            //console.log("event_id:price:price_id : ", event_id, param, object);
-                        }
-                    };
-                client.hdel('' + event_id + ':price:' + param + '', "" + object[0], callback);
+                callback({error: true, message: 'Invalid request'});
                 break;
         }
     }
+
 };
