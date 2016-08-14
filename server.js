@@ -27,26 +27,51 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use('/favicon.ico', express.static('./files/img/favicon.ico'));
 app.set('json spaces', 2);
 
-client.flushdb( function (err, succeeded) {
-    var fd = {name : 'Dev'};
-    client.hset('customer:', 'admin', JSON.stringify(fd), function (err, customerData) {
+//client.flushdb( function (err, succeeded) {
+//
+//});
+var fd = {name : 'Dev'};
+client.hset('customer:', 'admin', JSON.stringify(fd), function (err, customerData) {
+    if(err) console.error(err);
+    fd = {name : 'Mark', status : 0, customer : 'admin', login : 'mark', password : 'q'};
+    client.hset('customer:admin:users:', '1', JSON.stringify(fd), function (err, userData) {
         if(err) console.error(err);
-        fd = {name : 'Mark', status : 0, customer : 'dev', login : 'mark', password : 'q'};
-        client.hset('customer:admin:users:', '1', JSON.stringify(fd), function (err, userData) {
-            if(err) console.error(err);
-            fd = {name : 'Edo', status : 0, customer : 'dev', login : 'edo', password : 'q'};
-            client.hset('customer:admin:users:', '2', JSON.stringify(fd), function (err, userData) {
-                if(err) console.log(err);
-                fd = {fname : 'Abul', lname : 'Azizyan', dt : '15:37 11.11.2015'};
+        fd = {name : 'Edo', status : 0, customer : 'admin', login : 'edo', password : 'q'};
+        client.hset('customer:admin:users:', '2', JSON.stringify(fd), function (err, userData) {
+            if(err) console.log(err);
+            fd = {
+                keys : ['First Name', 'Last Name', 'Last Visit'],
+                values : ['FirstName', 'LastName', 'LastVisit'],
+                status : 0,
+                customer : 'admin'
+            };
+            client.hset('customer:admin:clients:', 'schema', JSON.stringify(fd), function (err, userData) {
+                if (err) console.log(err);
+                fd = {FirstName: 'Abul', LastName: 'Azizyan', LastVisit: '15:37 11.11.2015'};
                 client.hset('customer:admin:clients:', '1', JSON.stringify(fd), function (err, userData) {
-                    if(err) console.log(err);
-                    require('./middleware/routes.js')(app, client);
+                    if (err) console.log(err);
+                    fd = {FirstName: 'Abul', LastName: 'Kosh', LastVisit: '15:37 11.11.2015'};
+                    client.hset('customer:admin:clients:', '2', JSON.stringify(fd), function (err, userData) {
+                        if (err) console.log(err);
+                        fd = {FirstName: 'Karo', LastName: 'Malatia', LastVisit: '15:37 11.11.2015'};
+                        client.hset('customer:admin:clients:', '3', JSON.stringify(fd), function (err, userData) {
+                            if (err) console.log(err);
+                            fd = {FirstName: 'Sash', LastName: 'Gzo', LastVisit: '15:37 11.11.2015'};
+                            client.hset('customer:admin:clients:', '4', JSON.stringify(fd), function (err, userData) {
+                                if (err) console.log(err);
+                                fd = {FirstName: 'Styop', LastName: 'Aloyan', LastVisit: '15:37 11.11.2015'};
+                                client.hset('customer:admin:clients:', '5', JSON.stringify(fd), function (err, userData) {
+                                    if (err) console.log(err);
+                                    require('./middleware/routes.js')(app, client);
+                                });
+                            });
+                        });
+                    });
                 });
             });
         });
     });
 });
-
 
 
 var server = app.listen(port || 999, function() {

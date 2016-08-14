@@ -186,7 +186,7 @@ module.exports = function (app, fs) {
                         }
                         else {
                             users = JSON.parse(users);
-                            console.log(users);
+
                             res.send({
                                 error: false,
                                 message: 'Success',
@@ -240,15 +240,19 @@ module.exports = function (app, fs) {
                }
                else {
                    userData = JSON.parse(userData);
-                   redisRequests.clients(userData.customer, 'all', {}, function (err, cliensData) {
+                   redisRequests.clients(userData.customer, 'all', {}, function (err, clientsData) {
                        if(err) {
                            res.send({error: true, message: 'Clients request error', error_code: 'cli_1'}).end();
                        }
                        else {
+                           _.each(clientsData, function(client, key){
+                               clientsData[key] = JSON.parse(client);
+                               clientsData[key].id = key;
+                           });
                            res.send({
                                error: false,
                                message: 'Success',
-                               data: JSON.parse(cliensData)
+                               data: clientsData
                            }).end();
                        }
                    })
@@ -324,18 +328,21 @@ module.exports = function (app, fs) {
                 }
                 else {
                     userData = JSON.parse(userData);
-                    redisRequests.clients(userData.customer, 'add', {client_info : req.body.client_info}, function (err, cliensData) {
-                        if(err) {
-                            res.send({error: true, message: 'Clients request error', error_code: 'cli_1'}).end();
-                        }
-                        else {
-                            res.send({
-                                error: false,
-                                message: 'Success',
-                                data: JSON.parse(cliensData)
-                            }).end();
-                        }
-                    })
+                    if(userData && req.body.client_info) {
+                        redisRequests.clients(userData.customer, 'add', {client_info : req.body.client_info}, function (err, cliensData) {
+                            if(err) {
+                                res.send({error: true, message: 'Clients request error', error_code: 'cli_1'}).end();
+                            }
+                            else {
+                                res.send({
+                                    error: false,
+                                    message: 'Success',
+                                    data: JSON.parse(cliensData)
+                                }).end();
+                            }
+                        })
+                    }
+                    else res.send({error: true, message: 'Clients request error', error_code: 'cli_1'}).end();
                 }
             });
         }
@@ -352,18 +359,21 @@ module.exports = function (app, fs) {
                 }
                 else {
                     userData = JSON.parse(userData);
-                    redisRequests.clients(userData.customer, 'del', {client_id : req.body.client_id}, function (err, cliensData) {
-                        if(err) {
-                            res.send({error: true, message: 'Clients request error', error_code: 'cli_1'}).end();
-                        }
-                        else {
-                            res.send({
-                                error: false,
-                                message: 'Success',
-                                data: JSON.parse(cliensData)
-                            }).end();
-                        }
-                    })
+                    if(userData && req.body.client_id) {
+                        redisRequests.clients(userData.customer, 'del', {client_id : req.body.client_id}, function (err, cliensData) {
+                            if(err) {
+                                res.send({error: true, message: 'Clients request error', error_code: 'cli_1'}).end();
+                            }
+                            else {
+                                res.send({
+                                    error: false,
+                                    message: 'Success',
+                                    data: JSON.parse(cliensData)
+                                }).end();
+                            }
+                        })
+                    }
+                    else res.send({error: true, message: 'Clients request error', error_code: 'cli_1'}).end();
                 }
             });
         }

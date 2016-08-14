@@ -15,12 +15,7 @@
 
 </head>
 
-<body ng-include="isLoggedIn && '/html/home.html' || '/html/login.html'">
-
-    <div class="main-wrapper">
-        <header></header>
-        <ng-view></ng-view>
-    </div>
+<body ng-include="isLoggedIn && '/html/index.html' || '/html/login.html'">
 
     <script src="js/lib/angular-animate.min.js"></script>
     <script src="js/lib/angular-route.min.js"></script>
