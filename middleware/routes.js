@@ -5,13 +5,7 @@
 var dbRequest = require('./dbRequests');
 var redisRequests = require('./redisRequests');
 
-// client.keys('*', function (err, keys) {
-//     if (err) return console.log(err);
-//
-//     for(var i = 0, len = keys.length; i < len; i++) {
-//         console.log(keys[i]);
-//     }
-// });
+
 
 module.exports = function (app, fs) {
 
@@ -23,24 +17,66 @@ module.exports = function (app, fs) {
             redisRequests.user(req.body.customer, 'all', {}, function (err, users) {
                 if(err) res.send({error: true, message: 'Login error', error_code: 'auth_1'}).end();
                 else {
-                    users = _.filter(JSON.parse(users), function(user){ 
-                        return user.login == req.body.login && user.password == req.body.password; 
+                    users = _.find(users, function(user, key){
+                        users[key] = JSON.parse(user);
+                        users[key].id = key;
+                        return users[key].login == req.body.login && users[key].password == req.body.password;
                     });
-                    if(users.length == 0) res.send({error: true, message: 'Invalid username and password', error_code: 'auth_2'}).end();
-                    else if(users.length == 0) {
-                        res.send({
-                            error: false, 
-                            message: 'Success', 
-                            data: users[0]
-                        }).end();
+                    if(!users) {
+                        res.send({error: true, message: 'Invalid username and password', error_code: 'auth_2'}).end();
+                    }
+                    else {
+                        redisRequests.setUser(users.id, users, function (err, userData) {
+                            if(err) res.send({error: true, message: 'Login error', error_code: 'auth_3'}).end();
+                            else {
+                                res.send({error: false, message: 'Success', data: users}).end();
+                            }
+                        });
                     }
                 }
             });
         }
     });
 
-    app.post('/api/logout', function (req, res) {
+    app.post('/api/userInfo', function (req, res) {
+        if (req.headers.authorization == undefined) {
+            res.send({error: true, message: 'Authorizatioin token required', error_code: 'auth_1'}).end();
+        }
+        else {
+            redisRequests.getUser(req.headers.authorization, function (err, userData) {
+                if(err) {
+                    res.send({error: true, message: "User doesn't exist", error_code: 'auth_1'}).end();
+                }
+                else {
+                    res.send({
+                        error: false,
+                        message: 'Success',
+                        data: JSON.parse(userData)
+                    }).end();
+                }
+            });
+        }
+    });
 
+
+    app.post('/api/logout', function (req, res) {
+        if (req.headers.authorization == undefined) {
+            res.send({error: true, message: 'Authorizatioin token required', error_code: 'auth_1'}).end();
+        }
+        else {
+            redisRequests.delUser(req.headers.authorization, function (err, userData) {
+                if(err) {
+                    res.send({error: true, message: "User doesn't exist", error_code: 'auth_1'}).end();
+                }
+                else {
+                    res.send({
+                        error: false,
+                        message: 'Success',
+                        data: JSON.parse(userData)
+                    }).end();
+                }
+            });
+        }
     });
 
 

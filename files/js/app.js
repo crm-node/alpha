@@ -40,15 +40,43 @@ app.config(['$routeProvider', '$locationProvider', '$httpProvider',
         });
     }
 ]);
-app.run(['$rootScope', '$timeout',
-    function($rootScope, $timeout) {
-
+app.run(['$rootScope', '$timeout', '$http',
+    function($rootScope, $timeout, $http) {
+        $rootScope.httpRequest = function(path, method, data) {
+            return $http({
+                url: '/api/' + path,
+                method: method,
+                data: data
+            })
+        }
     }
 ]);
 
-app.controller('mainController', ['$http', '$routeParams', '$scope', '$rootScope', '$sce',
-    function($http, $routeParams, $scope, $rootScope, $sce) {
-        
+app.controller('mainController', ['$http', '$routeParams', '$scope', '$rootScope', '$sce', '$cookies',
+    function($http, $routeParams, $scope, $rootScope, $sce, $cookies) {
+        var token = $cookies.get('token');
+        console.log(token);
+        if(token) {
+            $rootScope.httpRequest('userInfo', 'POST', {}).success(function(data){
+                if(!data.error && data.data && data.data.id) {
+                    var token = data.id;
+                }
+                else {
+                    console.log(data);
+                }
+            });
+        }
+        else {
+            $rootScope.httpRequest('login', 'POST', {customer : 'admin', login : 'mark', password : 'q'}).success(function(data){
+                if(!data.error && data.data && data.data.id) {
+                    var token = data.data.id;
+                    $cookies.put('token', token);
+                }
+                else {
+                    console.log(data);
+                }
+            });
+        }
     }
 ]);
 

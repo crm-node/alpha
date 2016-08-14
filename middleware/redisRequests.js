@@ -5,6 +5,19 @@ var uuid = require('node-uuid');
 
 module.exports = {
 
+    setUser : function(id, data, callback) {
+        client.set('token:' + id, JSON.stringify(data), callback);
+    },
+
+    getUser : function(id, callback) {
+        console.log(id)
+        client.get('token:' + id, callback);
+    },
+
+    delUser : function(id, callback) {
+        client.del('token:' + id, callback);
+    },
+
     customer : function (customer_id, what, data, callback) {
         switch (what) {
             case 'add':
