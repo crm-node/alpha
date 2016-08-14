@@ -1,3 +1,13 @@
 .login-panel {
     margin-top: 35px;
 }
+#home .navbar-header {
+    float: initial;
+    display: block;
+}
+#home .nav>li {
+    display: inline-block;
+}
+#home .table-responsive {
+    padding-top: 150px;
+}

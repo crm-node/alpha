@@ -74,11 +74,11 @@ app.controller('mainController', ['$http', '$routeParams', '$scope', '$rootScope
             if (token) {
                 $rootScope.getUserInfo(function (data) {
                     if (data && !data.error) {
+                        console.log(data);
                         $rootScope.isLoggedIn = true;
-                        //$rootScope.userInfo = data;
+                        $rootScope.userInfo = data.data;
                     }
                 });
-
             }
             else {
 
@@ -86,9 +86,7 @@ app.controller('mainController', ['$http', '$routeParams', '$scope', '$rootScope
         }
         getUserInfo(token);
         $scope.userLogin = function () {
-            console.log($scope.login);
             if ($scope.login) {
-                console.log($scope.login);
                 var formData = {
                     customer: $scope.login.company,
                     login: $scope.login.username,
@@ -99,7 +97,6 @@ app.controller('mainController', ['$http', '$routeParams', '$scope', '$rootScope
                     $scope.message = data.message;
                     if (!data.error) {
                         var token = data.data.id;
-                        console.log(token);
                         $cookies.put('token', token);
                         getUserInfo(token);
                     }
@@ -107,6 +104,10 @@ app.controller('mainController', ['$http', '$routeParams', '$scope', '$rootScope
             } else {
                 $scope.message = 'Fields are required!';
             }
+        };
+        $scope.logout = function () {
+            $cookies.remove('token');
+            $rootScope.isLoggedIn = false;
         };
         //var token = $cookies.get('token');
         //console.log(token);
@@ -136,6 +137,6 @@ app.controller('mainController', ['$http', '$routeParams', '$scope', '$rootScope
 
 app.controller('homeController', ['$http', '$scope', '$rootScope',
     function($http, $scope, $rootScope) {
-        
+
     }
 ]);
