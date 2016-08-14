@@ -10,7 +10,6 @@ module.exports = {
     },
 
     getUser : function(id, callback) {
-        console.log(id)
         client.get('token:' + id, callback);
     },
 
