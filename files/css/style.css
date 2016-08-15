@@ -11,3 +11,6 @@
 #home .table-responsive {
     padding-top: 150px;
 }
+.navbar-header {
+    width: 100%;
+}

@@ -63,8 +63,7 @@ module.exports = {
                 client.hset('customer:' + customer_id + ':clients:', "" + uuid.v4(), JSON.stringify(data.client_info), callback);
                 break;
             case 'edit':
-                data = JSON.stringify(data);
-                client.hset('customer:' + customer_id + ':clients:', "" + data.client_id, "" + data, callback);
+                client.hset('customer:' + customer_id + ':clients:', "" + data.client_id, "" + JSON.stringify(data.client_info), callback);
                 break;
             case 'all':
                 client.hgetall('customer:' + customer_id + ':clients:', callback);

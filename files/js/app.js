@@ -165,15 +165,17 @@ app.controller('homeController', ['$http', '$scope', '$rootScope',
 app.controller('clientsController', ['$http', '$scope', '$rootScope',
     function($http, $scope, $rootScope) {
 
-        $scope.addUserForm = {};
+        $scope.clientToAdd = {};
         $scope.clientList = [];
-
+        $scope.clientToEdit = {};
+        $scope.clientToDelete = '';
+        
         $scope.getClients = function() {
             $rootScope.httpRequest("getClients", 'POST', {}, function (data) {
                 if(!data.error) {
                     if($scope.clientList.length == 0) {
                         data.data['schema'].values.forEach(function(val){
-                            $scope.addUserForm[''+val] = '';
+                            $scope.clientToAdd[''+val] = '';
                         });
                     }
                     $scope.clientList = data.data;
@@ -186,10 +188,10 @@ app.controller('clientsController', ['$http', '$scope', '$rootScope',
         };
 
         $scope.addClient = function() {
-            //console.log($scope.userAddForm);
-            if($scope.userAddForm.$valid) {
-                $rootScope.httpRequest("addClient", 'POST', {client_info : $scope.addUserForm}, function (data) {
+            if($scope.clientAddForm.$valid) {
+                $rootScope.httpRequest("addClient", 'POST', {client_info : $scope.clientToAdd}, function (data) {
                     if(!data.error) {
+                        $scope.clientToAdd = {};
                         $scope.getClients();
                     }
                     else {
@@ -201,13 +203,34 @@ app.controller('clientsController', ['$http', '$scope', '$rootScope',
         };
 
 
-        $scope.userToDelete = '';
         $scope.prepareDeleteClient = function(id) {
-            $scope.userToDelete = id;
+            $scope.clientToDelete = id;
         };
         $scope.deleteClient = function() {
-            $rootScope.httpRequest("delClient", 'POST', {client_id : $scope.userToDelete}, function (data) {
+            $rootScope.httpRequest("delClient", 'POST', {client_id : $scope.clientToDelete}, function (data) {
                 if(!data.error) {
+                    $scope.clientToDelete = '';
+                    $scope.getClients();
+                }
+                else {
+                    $scope.error = data.error;
+                    $scope.message = data.message;
+                }
+            });
+        };
+
+        
+        $scope.prepareEditClient = function(client) {
+            $scope.clientToEdit = angular.copy(client);
+            console.log($scope.clientToEdit);
+        };
+        $scope.editClient = function() {
+            $rootScope.httpRequest("editClient", 'POST', {
+                client_id : $scope.clientToEdit.id,
+                client_info: $scope.clientToEdit
+            }, function (data) {
+                if(!data.error) {
+                    $scope.clientToEdit = {};
                     $scope.getClients();
                 }
                 else {

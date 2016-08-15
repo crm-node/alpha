@@ -2,7 +2,7 @@
 
     <div class="table-responsive">
         <div class="clients-top">
-            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addUserModal">ADD USER</button>
+            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addClientModal">ADD USER</button>
             <button type="button" class="btn btn-default" ng-click="getClients()">UPDATE LIST</button>
         </div>
         <div class="filters-menu">
@@ -13,35 +13,36 @@
                 <tr>
                     <th ng-repeat="key in clientList['schema'].keys">{{key}}</th>
                     <th>Transactions</th>
-                    <th>User Info</th>
-                    <th>Delete User</th>
+                    <th>Client Info</th>
+                    <th>Delete Client</th>
                 </tr>
             </thead>
             <tbody>
                 <tr ng-repeat="(key, client) in clientList" ng-if="key!='schema'">
                     <th ng-repeat="value in clientList['schema'].values">{{client['' + value]}}</th>
                     <td><button type="button" class="btn btn-primary">View</button></td>
-                    <td><button type="button" class="btn btn-info">Info</button></td>
-                    <th><button type="button" class="btn btn-danger" data-toggle="modal" data-target="#confirmDeleteUserModal" ng-click="prepareDeleteClient(client.id)">Delete</button></th>
+                    <td><button type="button" class="btn btn-info" data-toggle="modal" data-target="#editClientModal" ng-click="prepareEditClient(client)">Info</button></td>
+                    <th><button type="button" class="btn btn-danger" data-toggle="modal" data-target="#confirmDeleteClientModal" ng-click="prepareDeleteClient(client.id)">Delete</button></th>
                 </tr>
             </tbody>
         </table>
     </div>
 </div>
 
-<div id="addUserModal" class="modal fade" role="dialog">
+<div id="addClientModal" class="modal fade" role="dialog">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">ADD USER</h4>
+                <h4 class="modal-title">ADD CLIENT</h4>
             </div>
             <div class="modal-body">
-                <form class="form-horizontal" role="form" name="userAddForm">
+                <form class="form-horizontal" role="form" name="clientAddForm">
                     <div class="form-group" ng-repeat="key in clientList['schema'].keys track by $index">
                         <label class="col-sm-2 control-label" for="input{{key}}">{{key}}</label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control" id="input{{key}}" placeholder="{{key}}" ng-model="addUserForm[clientList['schema'].values[$index]]"/>
+                            <input type="text" class="form-control" id="input{{key}}"
+                                   placeholder="{{key}}" ng-model="clientToAdd[clientList['schema'].values[$index]]"/>
                         </div>
                     </div>
                 </form>
@@ -54,16 +55,42 @@
     </div>
 </div>
 
-<div id="confirmDeleteUserModal" class="modal fade" role="dialog">
+<div id="confirmDeleteClientModal" class="modal fade" role="dialog">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Are you sure you want to delete this user?</h4>
+                <h4 class="modal-title">Are you sure you want to delete this client?</h4>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-success" ng-click="deleteClient()">Delete</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="editClientModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">EDIT CLIENT</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" role="form" name="clientEditForm">
+                    <div class="form-group" ng-repeat="key in clientList['schema'].keys track by $index">
+                        <label class="col-sm-2 control-label" for="input{{key}}">{{key}}</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="input{{key}}"
+                                   placeholder="{{key}}" ng-model="clientToEdit[clientList['schema'].values[$index]]"/>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" ng-click="editClient()">EDIT</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
