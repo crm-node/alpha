@@ -40,8 +40,11 @@ client.hset('customer:', 'admin', JSON.stringify(fd), function (err, customerDat
         client.hset('customer:admin:users:', '2', JSON.stringify(fd), function (err, userData) {
             if(err) console.log(err);
             fd = {
-                keys : ['First Name', 'Last Name', 'Last Visit'],
-                values : ['FirstName', 'LastName', 'LastVisit'],
+                fields : [
+                    {title : 'First Name', field : 'FirstName', type : 'text'},
+                    {title : 'Last Name', field : 'LastName', type : 'text'},
+                    {title : 'Last Visit', field : 'LastVisit', type : 'datetime-local'}
+                ],
                 status : 0,
                 customer : 'admin'
             };

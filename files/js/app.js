@@ -169,16 +169,17 @@ app.controller('clientsController', ['$http', '$scope', '$rootScope',
         $scope.clientList = [];
         $scope.clientToEdit = {};
         $scope.clientToDelete = '';
-        
+        $scope.clientsSchema = {};
+        $scope.schema = {};
+        $scope.editSchema = {};
+
+
         $scope.getClients = function() {
             $rootScope.httpRequest("getClients", 'POST', {}, function (data) {
-                if(!data.error) {
-                    if($scope.clientList.length == 0) {
-                        data.data['schema'].values.forEach(function(val){
-                            $scope.clientToAdd[''+val] = '';
-                        });
-                    }
-                    $scope.clientList = data.data;
+                if(!data.error && data.data && data.data['schema']) {
+                    $scope.schema = data.data['schema'];
+                    $scope.clientsSchema = data.data['schema'].fields;
+                    $scope.clientList = _.filter(data.data, function(item){ return item.id != 'schema'; });
                 }
                 else {
                     $scope.error = data.error;
@@ -222,7 +223,6 @@ app.controller('clientsController', ['$http', '$scope', '$rootScope',
         
         $scope.prepareEditClient = function(client) {
             $scope.clientToEdit = angular.copy(client);
-            console.log($scope.clientToEdit);
         };
         $scope.editClient = function() {
             $rootScope.httpRequest("editClient", 'POST', {
@@ -238,6 +238,46 @@ app.controller('clientsController', ['$http', '$scope', '$rootScope',
                     $scope.message = data.message;
                 }
             });
+        };
+
+        $scope.new_field = {};
+        $scope.prepareEditSchema = function() {
+            $scope.editSchemaForm = angular.copy($scope.clientsSchema);
+        };
+        $scope.editSchema = function() {
+            console.log($scope.editSchemaForm);
+            $scope.schema.fields = $scope.editSchemaForm;
+            $rootScope.httpRequest("editClient", 'POST', {
+                client_id : 'schema',
+                client_info: $scope.schema
+            }, function (data) {
+                if(!data.error) {
+                    $scope.editSchemaForm = {};
+                    $scope.getClients();
+                }
+                else {
+                    $scope.error = data.error;
+                    $scope.message = data.message;
+                }
+            });
+        };
+        $scope.addNewField = function () {
+            $scope.new_field = {
+                show : true,
+                title : '',
+                field : '',
+                type : ''
+            };
+            console.log($scope.new_field);
+        };
+        $scope.cancelNewField = function () {
+            $scope.new_field = {};
+        };
+        $scope.saveNewField = function () {
+            $scope.new_field.field = $scope.new_field.title.replace(" ","");
+            $scope.editSchemaForm = $scope.editSchemaForm.concat($scope.new_field);
+            $scope.new_field = {};
+            console.log($scope.editSchemaForm);
         };
     }
 ]);
