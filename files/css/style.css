@@ -51,3 +51,8 @@ body {
 #clients button {
     outline: none;
 }
+#clients table button {
+    padding: 9px 8px 7px;
+    width: 39px;
+    border-radius: 21px;
+}

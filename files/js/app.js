@@ -24,8 +24,8 @@ app.config(['$routeProvider', '$locationProvider', '$httpProvider',
                 controller: 'homeController'
             })
             .when("/users", {
-                templateUrl: '/html/home.html',
-                controller: 'homeController'
+                templateUrl: '/html/users.html',
+                controller: 'usersController'
             })
             .when("/user/:id", {
                 templateUrl: '/html/home.html',
@@ -88,8 +88,8 @@ app.run(['$rootScope', '$timeout', '$http','$cookies',
     }
 ]);
 
-app.controller('mainController', ['$http', '$routeParams', '$scope', '$rootScope', '$sce', '$cookies',
-    function($http, $routeParams, $scope, $rootScope, $sce, $cookies) {
+app.controller('mainController', ['$http', '$routeParams', '$scope', '$rootScope', '$sce', '$cookies', '$location',
+    function($http, $routeParams, $scope, $rootScope, $sce, $cookies, $location) {
 
         $rootScope.isLoggedIn = false;
         $scope.login = {};
@@ -137,14 +137,11 @@ app.controller('mainController', ['$http', '$routeParams', '$scope', '$rootScope
             }
         };
         $scope.logout = function () {
-            $cookies.remove('token');
-            $rootScope.isLoggedIn = false;
-        };
-
-        $scope.getClients = function() {
-            $rootScope.httpRequest("getClients", 'POST', {}, function (data) {
+            $rootScope.httpRequest("logout", 'POST', {}, function (data) {
                 if(!data.error) {
-                    $scope.clientList = data.data;
+                    $cookies.remove('token');
+                    $rootScope.isLoggedIn = false;
+                    $location.path("/");
                 }
                 else {
                     $scope.error = data.error;
@@ -152,7 +149,6 @@ app.controller('mainController', ['$http', '$routeParams', '$scope', '$rootScope
                 }
             });
         };
-        $scope.getClients();
     }
 ]);
 
@@ -173,6 +169,19 @@ app.controller('clientsController', ['$http', '$scope', '$rootScope',
         $scope.schema = {};
         $scope.editSchema = {};
 
+        $scope.sortType = ''; // set the default sort type
+        $scope.sortReverse = false;  // set the default sort order
+        $scope.new_field = {};
+        
+        $scope.changeSortType = function(field) {
+            if($scope.sortType == field.field) {
+                $scope.sortReverse = !$scope.sortReverse;
+            }
+            else {
+                $scope.sortType = field.field;
+                $scope.sortReverse = true;
+            }
+        };
 
         $scope.getClients = function() {
             $rootScope.httpRequest("getClients", 'POST', {}, function (data) {
@@ -180,6 +189,7 @@ app.controller('clientsController', ['$http', '$scope', '$rootScope',
                     $scope.schema = data.data['schema'];
                     $scope.clientsSchema = data.data['schema'].fields;
                     $scope.clientList = _.filter(data.data, function(item){ return item.id != 'schema'; });
+                    $scope.changeSortType(_.find($scope.clientsSchema, function(item){return item.title=="Registration"}));
                 }
                 else {
                     $scope.error = data.error;
@@ -194,6 +204,7 @@ app.controller('clientsController', ['$http', '$scope', '$rootScope',
                     if(!data.error) {
                         $scope.clientToAdd = {};
                         $scope.getClients();
+                        $('#addClientModal').modal('hide');
                     }
                     else {
                         $scope.error = data.error;
@@ -212,6 +223,7 @@ app.controller('clientsController', ['$http', '$scope', '$rootScope',
                 if(!data.error) {
                     $scope.clientToDelete = '';
                     $scope.getClients();
+                    $('#confirmDeleteClientModal').modal('hide');
                 }
                 else {
                     $scope.error = data.error;
@@ -232,6 +244,7 @@ app.controller('clientsController', ['$http', '$scope', '$rootScope',
                 if(!data.error) {
                     $scope.clientToEdit = {};
                     $scope.getClients();
+                    $('#editClientModal').modal('hide');
                 }
                 else {
                     $scope.error = data.error;
@@ -239,13 +252,11 @@ app.controller('clientsController', ['$http', '$scope', '$rootScope',
                 }
             });
         };
-
-        $scope.new_field = {};
+        
         $scope.prepareEditSchema = function() {
             $scope.editSchemaForm = angular.copy($scope.clientsSchema);
         };
         $scope.editSchema = function() {
-            console.log($scope.editSchemaForm);
             $scope.schema.fields = $scope.editSchemaForm;
             $rootScope.httpRequest("editClient", 'POST', {
                 client_id : 'schema',
@@ -254,6 +265,7 @@ app.controller('clientsController', ['$http', '$scope', '$rootScope',
                 if(!data.error) {
                     $scope.editSchemaForm = {};
                     $scope.getClients();
+                    $('#editClientsSchema').modal('hide');
                 }
                 else {
                     $scope.error = data.error;
@@ -278,6 +290,82 @@ app.controller('clientsController', ['$http', '$scope', '$rootScope',
             $scope.editSchemaForm = $scope.editSchemaForm.concat($scope.new_field);
             $scope.new_field = {};
             console.log($scope.editSchemaForm);
+        };
+    }
+]);
+
+app.controller('usersController', ['$http', '$scope', '$rootScope',
+    function($http, $scope, $rootScope) {
+        
+        $scope.userToAdd = {};
+        $scope.userList = [];
+        $scope.userToEdit = {};
+        $scope.userToDelete = '';
+
+        $scope.getUsers = function() {
+            $rootScope.httpRequest("getUsers", 'POST', {}, function (data) {
+                if(!data.error && data.data) {
+                    $scope.userList = data.data;
+                }
+                else {
+                    $scope.error = data.error;
+                    $scope.message = data.message;
+                }
+            });
+        };
+
+        $scope.addUser = function() {
+            if($scope.userAddForm.$valid) {
+                $scope.userToAdd.customer = $rootScope.userInfo.customer;
+                $rootScope.httpRequest("addUser", 'POST', {user_info : $scope.userToAdd}, function (data) {
+                    if(!data.error) {
+                        $scope.userToAdd = {};
+                        $scope.getUsers();
+                        $('#addUserModal').modal('hide');
+                    }
+                    else {
+                        $scope.error = data.error;
+                        $scope.message = data.message;
+                    }
+                });
+            }
+        };
+        
+        $scope.prepareEditUser = function(user) {
+            $scope.userToEdit = angular.copy(user);
+        };
+        $scope.editUser = function() {
+            $rootScope.httpRequest("editUser", 'POST', {
+                user_id : $scope.userToEdit.id,
+                user_info: $scope.userToEdit
+            }, function (data) {
+                if(!data.error) {
+                    $scope.userToEdit = {};
+                    $scope.getUsers();
+                    $('#editUserModal').modal('hide');
+                }
+                else {
+                    $scope.error = data.error;
+                    $scope.message = data.message;
+                }
+            });
+        };
+        
+        $scope.prepareDeleteUser = function(id) {
+            $scope.userToDelete = id;
+        };
+        $scope.deleteUser = function() {
+            $rootScope.httpRequest("delUser", 'POST', {user_id : $scope.userToDelete}, function (data) {
+                if(!data.error) {
+                    $scope.userToDelete = '';
+                    $scope.getUsers();
+                    $('#confirmDeleteUserModal').modal('hide');
+                }
+                else {
+                    $scope.error = data.error;
+                    $scope.message = data.message;
+                }
+            });
         };
     }
 ]);

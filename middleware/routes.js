@@ -2,7 +2,7 @@
  * Created by Mark Sarukhanov on 29.07.2016.
  */
 
-var dbRequest = require('./dbRequests');
+//var dbRequest = require('./dbRequests');
 var redisRequests = require('./redisRequests');
 
 
@@ -44,7 +44,7 @@ module.exports = function (app, fs) {
         }
         else {
             redisRequests.getUser(req.headers.authorization, function (err, userData) {
-                if(err) {
+                if(err || !userData) {
                     res.send({error: true, message: "User doesn't exist", error_code: 'auth_1'}).end();
                 }
                 else {
@@ -71,7 +71,7 @@ module.exports = function (app, fs) {
                     res.send({
                         error: false,
                         message: 'Success',
-                        data: JSON.parse(userData)
+                        data: null
                     }).end();
                 }
             });
@@ -84,7 +84,7 @@ module.exports = function (app, fs) {
         }
         else {
             redisRequests.getUser(req.headers.authorization, function (err, userData) {
-                if(err) {
+                if(err || !userData) {
                     res.send({error: true, message: "User doesn't exist", error_code: 'auth_1'}).end();
                 }
                 else {
@@ -94,14 +94,24 @@ module.exports = function (app, fs) {
                             console.log(err);
                         }
                         else {
-                            users = JSON.parse(users);
+                            _.each(users, function(user, key){
+                                users[key] = JSON.parse(user);
+                                users[key].id = key;
+                            });
                             users = _.filter(users, function(user){ return user.customer  == userData.customer; });
-                            console.log(users);
-                            res.send({
-                                error: false,
-                                message: 'Success',
-                                data: users
-                            }).end();
+                            var idS = _.pluck(users, "id");
+                            _.each(idS, function(item, k){idS[k] = "token:"+item});
+                            client.mget(idS, function (err, keys) {
+                                _.each(keys, function(key, k){keys[k] = JSON.parse(key);});
+                                _.each(users, function(user, keyU){
+                                    users[keyU].status = _.findWhere(keys, {id: user.id}) ? 1 : 0;
+                                });
+                                res.send({
+                                    error: false,
+                                    message: 'Success',
+                                    data: users
+                                }).end();
+                            });
                         }
                     });
                 }
@@ -115,7 +125,7 @@ module.exports = function (app, fs) {
         }
         else {
             redisRequests.getUser(req.headers.authorization, function (err, userData) {
-                if(err) {
+                if(err || !userData) {
                     res.send({error: true, message: "User doesn't exist", error_code: 'auth_1'}).end();
                 }
                 else {
@@ -145,7 +155,7 @@ module.exports = function (app, fs) {
         }
         else {
             redisRequests.getUser(req.headers.authorization, function (err, userData) {
-                if(err) {
+                if(err || !userData) {
                     res.send({error: true, message: "User doesn't exist", error_code: 'auth_1'}).end();
                 }
                 else {
@@ -175,7 +185,7 @@ module.exports = function (app, fs) {
         }
         else {
             redisRequests.getUser(req.headers.authorization, function (err, userData) {
-                if(err) {
+                if(err || !userData) {
                     res.send({error: true, message: "User doesn't exist", error_code: 'auth_1'}).end();
                 }
                 else {
@@ -186,7 +196,6 @@ module.exports = function (app, fs) {
                         }
                         else {
                             users = JSON.parse(users);
-
                             res.send({
                                 error: false,
                                 message: 'Success',
@@ -205,7 +214,7 @@ module.exports = function (app, fs) {
         }
         else {
             redisRequests.getUser(req.headers.authorization, function (err, userData) {
-                if(err) {
+                if(err || !userData) {
                     res.send({error: true, message: "User doesn't exist", error_code: 'auth_1'}).end();
                 }
                 else {
@@ -267,7 +276,7 @@ module.exports = function (app, fs) {
         }
         else {
             redisRequests.getUser(req.headers.authorization, function (err, userData) {
-                if(err) {
+                if(err || !userData) {
                     res.send({error: true, message: "User doesn't exist", error_code: 'auth_1'}).end();
                 }
                 else {
@@ -295,7 +304,7 @@ module.exports = function (app, fs) {
         }
         else {
             redisRequests.getUser(req.headers.authorization, function (err, userData) {
-                if(err) {
+                if(err || !userData) {
                     res.send({error: true, message: "User doesn't exist", error_code: 'auth_1'}).end();
                 }
                 else {
@@ -323,7 +332,7 @@ module.exports = function (app, fs) {
         }
         else {
             redisRequests.getUser(req.headers.authorization, function (err, userData) {
-                if(err) {
+                if(err || !userData) {
                     res.send({error: true, message: "User doesn't exist", error_code: 'auth_1'}).end();
                 }
                 else {
@@ -354,7 +363,7 @@ module.exports = function (app, fs) {
         }
         else {
             redisRequests.getUser(req.headers.authorization, function (err, userData) {
-                if(err) {
+                if(err || !userData) {
                     res.send({error: true, message: "User doesn't exist", error_code: 'auth_1'}).end();
                 }
                 else {

@@ -11,20 +11,36 @@
         <table class="table table-striped table-hover" ng-init="getClients()">
             <thead>
                 <tr>
-                    <th ng-repeat="field in clientsSchema">{{field.title}}</th>
+                    <th ng-repeat="field in clientsSchema" ng-click="changeSortType(field)">
+                        {{field.title}}
+                        <span ng-show="sortType == field.field && !sortReverse" class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span>
+                        <span ng-show="sortType == field.field && sortReverse" class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span>
+                    </th>
                     <th>Transactions</th>
                     <th>Client Info</th>
                     <th>Delete Client</th>
                 </tr>
             </thead>
             <tbody>
-                <tr ng-repeat="(key, client) in clientList">
-                    <td ng-repeat="field in clientsSchema">{{client['' + field.field]}}</td>
-                    <td><button type="button" class="btn btn-primary">View</button></td>
-                    <td><button type="button" class="btn btn-info" data-toggle="modal" data-target="#editClientModal"
-                                ng-click="prepareEditClient(client)">Info</button></td>
-                    <th><button type="button" class="btn btn-danger" data-toggle="modal" data-target="#confirmDeleteClientModal"
-                                ng-click="prepareDeleteClient(client.id)">Delete</button></th>
+                <tr ng-repeat="(key, client) in clientList | orderBy:sortType:sortReverse">
+                    <td ng-repeat="field in clientsSchema">
+                        {{client['' + field.field] | date:"dd.MM.yyyy 'at' HH:mm"}}
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-primary">
+                            <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
+                        </button>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#editClientModal" ng-click="prepareEditClient(client)">
+                            <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+                        </button>
+                    </td>
+                    <th>
+                        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#confirmDeleteClientModal" ng-click="prepareDeleteClient(client.id)">
+                            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                        </button>
+                    </th>
                 </tr>
             </tbody>
         </table>
@@ -50,7 +66,7 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-success" ng-click="addClient()" data-dismiss="modal">ADD</button>
+                <button type="button" class="btn btn-success" ng-click="addClient()">ADD</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
         </div>
@@ -91,7 +107,7 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-success" ng-click="editClient()" data-dismiss="modal">EDIT</button>
+                <button type="button" class="btn btn-success" ng-click="editClient()">EDIT</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
         </div>
@@ -154,7 +170,7 @@
                 <div class="col-sm-2">
                     <button type="button" class="btn btn-success" ng-click="addNewField()">ADD FIELD</button>
                 </div>
-                <button type="button" class="btn btn-success" ng-click="editSchema()" data-dismiss="modal">SAVE</button>
+                <button type="button" class="btn btn-success" ng-click="editSchema()">SAVE</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
         </div>
