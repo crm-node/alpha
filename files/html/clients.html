@@ -1,5 +1,4 @@
-<div id="home">
-
+<div id="clients">
     <div class="table-responsive">
         <div class="clients-top">
             <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addClientModal">ADD USER</button>
@@ -20,7 +19,7 @@
             </thead>
             <tbody>
                 <tr ng-repeat="(key, client) in clientList">
-                    <th ng-repeat="field in clientsSchema">{{client['' + field.field]}}</th>
+                    <td ng-repeat="field in clientsSchema">{{client['' + field.field]}}</td>
                     <td><button type="button" class="btn btn-primary">View</button></td>
                     <td><button type="button" class="btn btn-info" data-toggle="modal" data-target="#editClientModal"
                                 ng-click="prepareEditClient(client)">Info</button></td>
@@ -66,7 +65,7 @@
                 <h4 class="modal-title">Are you sure you want to delete this client?</h4>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-success" ng-click="deleteClient()">Delete</button>
+                <button type="button" class="btn btn-success" ng-click="deleteClient()" data-dismiss="modal">Delete</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
             </div>
         </div>
@@ -92,7 +91,7 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-success" ng-click="editClient()">EDIT</button>
+                <button type="button" class="btn btn-success" ng-click="editClient()" data-dismiss="modal">EDIT</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
         </div>
@@ -155,7 +154,7 @@
                 <div class="col-sm-2">
                     <button type="button" class="btn btn-success" ng-click="addNewField()">ADD FIELD</button>
                 </div>
-                <button type="button" class="btn btn-success" ng-click="editSchema()">SAVE</button>
+                <button type="button" class="btn btn-success" ng-click="editSchema()" data-dismiss="modal">SAVE</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
         </div>

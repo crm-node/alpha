@@ -14,3 +14,12 @@
 .navbar-header {
     width: 100%;
 }
+#clients td {
+    vertical-align: middle;
+    font-size: 16px;
+    font-weight: 700;
+
+}
+#clients {
+    padding-top: 150px;
+}
