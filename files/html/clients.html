@@ -85,7 +85,7 @@
                     <div class="form-group" ng-repeat="field in clientsSchema track by $index">
                         <label class="col-sm-2 control-label" for="input{{field.field}}">{{field.title}}</label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control" id="input{{field.field}}"
+                            <input type="{{field.type}}" class="form-control" id="input{{field.field}}"
                                    placeholder="{{field.title}}" ng-model="clientToEdit[''+field.field]"/>
                         </div>
                     </div>
@@ -111,7 +111,7 @@
                     <div class="form-group" ng-repeat="field in editSchemaForm track by $index">
                         <div class="col-sm-8">
                             <div class="col-sm-5">
-                                <input type="text" class="form-control" id="input{{field.field}}" value="field.title"
+                                <input type="{{field.title}}" class="form-control" id="input{{field.field}}" value="field.title"
                                        placeholder="{{field.title}}" ng-model="field.title"/>
                             </div>
                             <div class="col-sm-5">
