@@ -100,15 +100,20 @@ module.exports = {
     transactions : function (customer_id, what, data, callback) {
         switch (what) {
             case 'add':
-                data.user_id = JSON.stringify(data.user_id);
-                data.transaction = JSON.stringify(data.transaction);
-                client.hset('customer:' + customer_id + ':users:' + data.user_id + ':transaction:'  , "" + uuid.v4(), JSON.stringify(data.transaction.info), callback);
+                data.transaction_info.dt = new Date();
+                client.hset('customer:' + customer_id + ':transaction:'  , "" + uuid.v4(), JSON.stringify(data.transaction_info), callback);
+                break;
+            case 'edit':
+                client.hset('customer:' + customer_id + ':transaction:', "" + data.transaction_id, "" + JSON.stringify(data.transaction_info), callback);
+                break;
+            case 'all':
+                client.hgetall('customer:' + customer_id + ':transaction:', callback);
                 break;
             case 'get':
-                client.hget('customer:' + customer_id + ':users:' + data.user_id + ':transaction:' + data.transaction_id, callback);
+                client.hget('customer:' + customer_id + ':transaction:' + data.transaction_id, callback);
                 break;
             case 'del':
-                client.hdel('customer:' + customer_id + ':users:' + data.user_id + ':transaction:', data.transaction_id, callback);
+                client.hdel('customer:' + customer_id + ':transaction:', data.transaction_id.transaction_id, callback);
                 break;
         }
     }

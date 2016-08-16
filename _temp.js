@@ -1,153 +1,149 @@
-{
-    market :  [
-        {
-        '$': {code: 'Ftb_23', name: 'Handicap', id: '27136512'},
-        choice: [[Object],
-            [Object],
-            [Object],
-            [Object],
-            [Object],
-            [Object],
-            [Object],
-            [Object],
-            [Object],
-            [Object],
-            [Object],
-            [Object]]
-        },
-        {
-            '$': {code: 'Ftb_Tgl', name: 'Total Goals', id: '27136517'},
-            choice: [[Object], [Object], [Object]]
-        },
-        {
-            '$': {code: 'Ftb_Htr', name: 'Half-Time Result', id: '27136526'},
-            choice: [[Object], [Object], [Object]]
-        },
-        {
-            '$': {code: 'Ftb_Csc', name: 'Correct Score', id: '27136544'},
-            choice: [[Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object]]
-        },
-        {
-            '$': {
-                code: 'Ftb_Hcs',
-                name: 'Half-Time Correct Score',
-                id: '27136553'
-            },
-            choice: [[Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object]]
-        },
-        {
-            '$': {code: 'Ftb_10', name: 'Over/Under', id: '27136556'},
-            choice: [[Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object]]
-        },
-        {
-            '$': {code: 'Ftb_Dbc', name: 'Double Chance', id: '27136559'},
-            choice: [[Object], [Object], [Object]]
-        },
-        {
-            '$': {code: 'Ftb_Mr3', name: 'Match Result', id: '27136562'},
-            choice: [[Object], [Object], [Object]]
-        },
-        {
-            '$': {
-                code: 'Ftb_Htf',
-                name: 'Half-Time / Full-Time',
-                id: '27136568'
-            },
-            choice: [[Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object],
-                [Object]]
-        },
-        {
-            '$': {code: 'Ftb_Fts', name: 'First Team To Score', id: '27136579'},
-            choice: [[Object], [Object], [Object]]
-        }]
-}
+app.post('/api/getTransactions', function (req, res) {
+    if (req.headers.authorization == undefined) {
+        res.send({error: true, message: 'Authorizatioin token required', error_code: 'auth_1'}).end();
+    }
+    else {
+        redisRequests.getUser(req.headers.authorization, function (err, userData) {
+            if(err) {
+                res.send({error: true, message: "User doesn't exist", error_code: 'auth_1'}).end();
+            }
+            else {
+                userData = JSON.parse(userData);
+                redisRequests.transactions(userData.customer, 'all', {}, function (err, transactionsData) {
+                    if(err) {
+                        res.send({error: true, message: 'Transactions request error', error_code: 'cli_1'}).end();
+                    }
+                    else {
+                        _.each(transactionsData, function(transaction, key){
+                            transactionsData[key] = JSON.parse(transaction);
+                            transactionsData[key].id = key;
+                        });
+                        res.send({
+                            error: false,
+                            message: 'Success',
+                            data: transactionsData
+                        }).end();
+                    }
+                })
+            }
+        });
+    }
+});
+
+app.post('/api/getTransaction', function (req, res) {
+    if (req.headers.authorization == undefined) {
+        res.send({error: true, message: 'Authorizatioin token required', error_code: 'auth_1'}).end();
+    }
+    else {
+        redisRequests.getUser(req.headers.authorization, function (err, userData) {
+            if(err || !userData) {
+                res.send({error: true, message: "User doesn't exist", error_code: 'auth_1'}).end();
+            }
+            else {
+                userData = JSON.parse(userData);
+                redisRequests.transactions(userData.customer, 'get', {transaction_id : req.body.transaction_id}, function (err, cliensData) {
+                    if(err) {
+                        res.send({error: true, message: 'Transactions request error', error_code: 'cli_1'}).end();
+                    }
+                    else {
+                        res.send({
+                            error: false,
+                            message: 'Success',
+                            data: JSON.parse(cliensData)
+                        }).end();
+                    }
+                })
+            }
+        });
+    }
+});
+
+app.post('/api/editTransaction', function (req, res) {
+    if (req.headers.authorization == undefined) {
+        res.send({error: true, message: 'Authorizatioin token required', error_code: 'auth_1'}).end();
+    }
+    else {
+        redisRequests.getUser(req.headers.authorization, function (err, userData) {
+            if(err || !userData) {
+                res.send({error: true, message: "User doesn't exist", error_code: 'auth_1'}).end();
+            }
+            else {
+                userData = JSON.parse(userData);
+                redisRequests.transactions(userData.customer, 'edit', {transaction_id : req.body.transaction_id, transaction_info : req.body.transaction_info}, function (err, cliensData) {
+                    if(err) {
+                        res.send({error: true, message: 'Transactions request error', error_code: 'cli_1'}).end();
+                    }
+                    else {
+                        res.send({
+                            error: false,
+                            message: 'Success',
+                            data: JSON.parse(cliensData)
+                        }).end();
+                    }
+                })
+            }
+        });
+    }
+});
+
+app.post('/api/addTransaction', function (req, res) {
+    if (req.headers.authorization == undefined) {
+        res.send({error: true, message: 'Authorizatioin token required', error_code: 'auth_1'}).end();
+    }
+    else {
+        redisRequests.getUser(req.headers.authorization, function (err, userData) {
+            if(err || !userData) {
+                res.send({error: true, message: "User doesn't exist", error_code: 'auth_1'}).end();
+            }
+            else {
+                userData = JSON.parse(userData);
+                if(userData && req.body.transaction_info) {
+                    redisRequests.transactions(userData.customer, 'add', {transaction_info : req.body.transaction_info}, function (err, cliensData) {
+                        if(err) {
+                            res.send({error: true, message: 'Transactions request error', error_code: 'cli_1'}).end();
+                        }
+                        else {
+                            res.send({
+                                error: false,
+                                message: 'Success',
+                                data: JSON.parse(cliensData)
+                            }).end();
+                        }
+                    })
+                }
+                else res.send({error: true, message: 'Transactions request error', error_code: 'cli_1'}).end();
+            }
+        });
+    }
+});
+
+app.post('/api/delTransaction', function (req, res) {
+    if (req.headers.authorization == undefined) {
+        res.send({error: true, message: 'Authorizatioin token required', error_code: 'auth_1'}).end();
+    }
+    else {
+        redisRequests.getUser(req.headers.authorization, function (err, userData) {
+            if(err || !userData) {
+                res.send({error: true, message: "User doesn't exist", error_code: 'auth_1'}).end();
+            }
+            else {
+                userData = JSON.parse(userData);
+                if(userData && req.body.transaction_id) {
+                    redisRequests.transactions(userData.customer, 'del', {transaction_id : req.body.transaction_id}, function (err, cliensData) {
+                        if(err) {
+                            res.send({error: true, message: 'Transactions request error', error_code: 'cli_1'}).end();
+                        }
+                        else {
+                            res.send({
+                                error: false,
+                                message: 'Success',
+                                data: JSON.parse(cliensData)
+                            }).end();
+                        }
+                    })
+                }
+                else res.send({error: true, message: 'Transactions request error', error_code: 'cli_1'}).end();
+            }
+        });
+    }
+});

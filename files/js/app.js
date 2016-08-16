@@ -21,7 +21,7 @@ app.config(['$routeProvider', '$locationProvider', '$httpProvider',
             })
             .when("/transactions", {
                 templateUrl: '/html/transactions.html',
-                controller: 'homeController'
+                controller: 'transactionsController'
             })
             .when("/transaction/:id", {
                 templateUrl: '/html/transaction.html',
@@ -430,5 +430,142 @@ app.controller('scheduleController', ['$http', '$scope', '$rootScope',
         //.fullCalendar( 'renderEvent', event, true ) add new Event to Calendar
 
 
+    }
+]);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+app.controller('transactionsController', ['$http', '$scope', '$rootScope',
+    function($http, $scope, $rootScope) {
+
+        $scope.transactionToAdd = {};
+        $scope.transactionList = [];
+        $scope.transactionToEdit = {};
+        $scope.transactionToDelete = '';
+
+        $scope.sortType = 'dt'; // set the default sort type
+        $scope.sortReverse = false;  // set the default sort order
+        $scope.new_field = {};
+
+        $scope.changeSortType = function(field) {
+            if($scope.sortType == field) {
+                $scope.sortReverse = !$scope.sortReverse;
+            }
+            else {
+                $scope.sortType = field;
+                $scope.sortReverse = true;
+            }
+            console.log($scope.sortType)
+        };
+        
+        $scope.getTransactions = function() {
+            $rootScope.httpRequest("getTransactions", 'POST', {}, function (data) {
+                if(!data.error && data.data) {
+                    $scope.transactionList = $scope.clientList = _.filter(data.data, function(item){ return item.id != 'schema'; });
+                    $scope.changeSortType('dt');
+                }
+                else {
+                    $scope.error = data.error;
+                    $scope.message = data.message;
+                }
+            });
+        };
+
+        $scope.addTransaction = function() {
+            if($scope.transactionAddForm.$valid) {
+                $scope.transactionToAdd.customer = $rootScope.userInfo.customer;
+                $scope.transactionToAdd.user_id = $rootScope.userInfo.id;
+                $scope.transactionToAdd.user_name = $rootScope.userInfo.name;
+                $rootScope.httpRequest("addTransaction", 'POST', {transaction_info : $scope.transactionToAdd}, function (data) {
+                    if(!data.error) {
+                        $scope.transactionToAdd = {};
+                        $scope.getTransactions();
+                        $('#addTransactionModal').modal('hide');
+                    }
+                    else {
+                        $scope.error = data.error;
+                        $scope.message = data.message;
+                    }
+                });
+            }
+        };
+
+        $scope.prepareEditTransaction = function(transaction) {
+            $scope.transactionToEdit = angular.copy(transaction);
+        };
+        $scope.editTransaction = function() {
+            $rootScope.httpRequest("editTransaction", 'POST', {
+                transaction_id : $scope.transactionToEdit.id,
+                transaction_info: $scope.transactionToEdit
+            }, function (data) {
+                if(!data.error) {
+                    $scope.transactionToEdit = {};
+                    $scope.getTransactions();
+                    $('#editTransactionModal').modal('hide');
+                }
+                else {
+                    $scope.error = data.error;
+                    $scope.message = data.message;
+                }
+            });
+        };
+
+        $scope.prepareDeleteTransaction = function(id, login) {
+            $scope.transactionToDelete = {
+                transaction_id : id,
+                login : login
+            };
+        };
+        $scope.deleteTransaction = function() {
+            $rootScope.httpRequest("delTransaction", 'POST', {transaction_id : $scope.transactionToDelete}, function (data) {
+                if(!data.error) {
+                    $scope.transactionToDelete = '';
+                    $scope.getTransactions();
+                    $('#confirmDeleteTransactionModal').modal('hide');
+                }
+                else {
+                    $scope.error = data.error;
+                    $scope.message = data.message;
+                }
+            });
+        };
     }
 ]);
