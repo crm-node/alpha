@@ -382,18 +382,15 @@ app.controller('scheduleController', ['$http', '$scope', '$rootScope',
             $('#calendar').fullCalendar({
                 //theme: true, uncomment when css is ready
                 businessHours: true,
+                firstDay: 1,
                 editable: true,
+                eventLimit: true,
                 defaultView: 'month',
                 header: {
                     left: 'prev,next today',
                     center: 'title',
                     right: 'month,agendaWeek,agendaDay'
                 },
-
-                eventBackgroundColor: 'red',
-                eventTextColor: 'yellow',
-                eventBorderColor: 'black',
-
                 timeFormat: 'H(:mm)',
                 events: [
                      {
@@ -410,14 +407,25 @@ app.controller('scheduleController', ['$http', '$scope', '$rootScope',
                         title  : 'Dentist',
                         start  : '2016-08-18T11:30:00',
                         end  : '2016-08-18T012:30:00',
+                        user : 'Abul',
                         allDay : false
                     }
-                ]
+                ],
+                eventClick: function(calEvent, jsEvent, view) {
+
+                    console.log('Event: ', calEvent);
+                    console.log('Coordinates: ' + jsEvent.pageX + ',' + jsEvent.pageY);
+                    console.log('View: ', view);
+
+                    // change the border color just for fun
+                    $(this).css('border-color', 'red');
+
+                }
             })
         });
 
         //.fullCalendar( 'renderEvent', event, true ) add new Event to Calendar
-        
+
 
     }
 ]);
