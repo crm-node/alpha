@@ -7,6 +7,10 @@ app.config(['$routeProvider', '$locationProvider', '$httpProvider',
                 templateUrl: '/html/home.html',
                 controller: 'homeController'
             })
+            .when("/schedule", {
+                templateUrl: '/html/schedule.html',
+                controller: 'scheduleController'
+            })
             .when("/clients", {
                 templateUrl: '/html/clients.html',
                 controller: 'clientsController'
@@ -367,5 +371,53 @@ app.controller('usersController', ['$http', '$scope', '$rootScope',
                 }
             });
         };
+    }
+]);
+
+app.controller('scheduleController', ['$http', '$scope', '$rootScope',
+    function($http, $scope, $rootScope) {
+
+        $(document).ready(function() {
+            // page is ready
+            $('#calendar').fullCalendar({
+                //theme: true, uncomment when css is ready
+                businessHours: true,
+                editable: true,
+                defaultView: 'month',
+                header: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'month,agendaWeek,agendaDay'
+                },
+
+                eventBackgroundColor: 'red',
+                eventTextColor: 'yellow',
+                eventBorderColor: 'black',
+
+                timeFormat: 'H(:mm)',
+                events: [
+                     {
+                        title  : 'Meeting',
+                        start  : '2016-08-16'
+                    },
+                    {
+                        title  : 'Conference',
+                        start  : '2016-08-18T16:30:00',
+                        end    : '2016-08-18',
+                        allDay : false
+                    },
+                    {
+                        title  : 'Dentist',
+                        start  : '2016-08-18T11:30:00',
+                        end  : '2016-08-18T012:30:00',
+                        allDay : false
+                    }
+                ]
+            })
+        });
+
+        //.fullCalendar( 'renderEvent', event, true ) add new Event to Calendar
+        
+
     }
 ]);
