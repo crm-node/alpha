@@ -493,13 +493,24 @@ app.controller('transactionsController', ['$http', '$scope', '$rootScope',
                 $scope.sortType = field;
                 $scope.sortReverse = true;
             }
-            console.log($scope.sortType)
         };
+        $scope.getClients = function() {
+            $rootScope.httpRequest("getClients", 'POST', {}, function (data) {
+                if(!data.error && data.data && data.data['schema']) {
+                    $scope.clientList = _.filter(data.data, function(item){ return item.id != 'schema'; });
+                }
+                else {
+                    $scope.error = data.error;
+                    $scope.message = data.message;
+                }
+            });
+        };
+        $scope.getClients();
         
         $scope.getTransactions = function() {
             $rootScope.httpRequest("getTransactions", 'POST', {}, function (data) {
                 if(!data.error && data.data) {
-                    $scope.transactionList = $scope.clientList = _.filter(data.data, function(item){ return item.id != 'schema'; });
+                    $scope.transactionList = _.filter(data.data, function(item){ return item.id != 'schema'; });
                     $scope.changeSortType('dt');
                 }
                 else {
@@ -511,6 +522,7 @@ app.controller('transactionsController', ['$http', '$scope', '$rootScope',
 
         $scope.addTransaction = function() {
             if($scope.transactionAddForm.$valid) {
+                if($scope.transactionToAdd.type != 'Client paid') $scope.transactionToAdd.client_name = undefined;
                 $scope.transactionToAdd.customer = $rootScope.userInfo.customer;
                 $scope.transactionToAdd.user_id = $rootScope.userInfo.id;
                 $scope.transactionToAdd.user_name = $rootScope.userInfo.name;

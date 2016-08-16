@@ -19,6 +19,10 @@
                     <span ng-show="sortType == 'user_name' && !sortReverse" class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span>
                     <span ng-show="sortType == 'user_name' && sortReverse" class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span>
                 </th>
+                <th ng-click="changeSortType('client_name')">Client
+                    <span ng-show="sortType == 'client_name' && !sortReverse" class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span>
+                    <span ng-show="sortType == 'client_name' && sortReverse" class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span>
+                </th>
                 <th ng-click="changeSortType('amount')">Amount
                     <span ng-show="sortType == 'amount' && !sortReverse" class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span>
                     <span ng-show="sortType == 'amount' && sortReverse" class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span>
@@ -39,6 +43,9 @@
                 </td>
                 <td>
                     {{transaction.user_name}}
+                </td>
+                <td>
+                    {{transaction.client_name}}
                 </td>
                 <td>
                     {{transaction.amount}}
@@ -88,6 +95,12 @@
                             <option value="Inventory filled">Inventory filled</option>
                             <option value="Communal payments">Communal payments</option>
                             <option value="Food">Food</option>
+                        </select>
+                    </div>
+                    <div class="form-group" ng-show="transactionToAdd.type == 'Client paid'">
+                        <label class="col-sm-2 control-label" for="inputType">Client</label>
+                        <select class="form-control" ng-model="transactionToAdd.client_name" id="inputType">
+                            <option value="{{client.FirstName}} {{client.LastName}}" ng-repeat="client in clientList">{{client.FirstName}} {{client.LastName}}</option>
                         </select>
                     </div>
                     <div class="form-group">
