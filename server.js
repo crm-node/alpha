@@ -36,11 +36,26 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use('/favicon.ico', express.static('./files/img/favicon.ico'));
 app.set('json spaces', 2);
 
+
+// client.hgetall('devusers:', function (err, userData) {
+//     if (err) console.error(err);
+//     else {
+//         console.log(userData)
+//     }
+// });
 //client.flushdb( function (err, succeeded) {
 //
 //});
 //var fd = {name : 'Dev'};
-//client.hset('customer:', 'admin', JSON.stringify(fd), function (err, customerData) {
+// var fd = {customer : 'admin', login : 'mark', password : 'q', id: 1};
+// client.hset('devusers:', 'mark', JSON.stringify(fd), function (err, userData) {
+//     if (err) console.error(err);
+//     fd = {customer: 'admin', login: 'edo', password: 'q', id: 2};
+//     client.hset('devusers:', 'edo', JSON.stringify(fd), function (err, userData) {
+//         if (err) console.log(err);
+//     });
+// });
+// client.hset('customer:', 'admin', JSON.stringify(fd), function (err, customerData) {
 //    if(err) console.error(err);
 //    fd = {name : 'Mark', status : 0, customer : 'admin', login : 'mark', password : 'q'};
 //    client.hset('customer:admin:users:', '1', JSON.stringify(fd), function (err, userData) {
@@ -49,7 +64,7 @@ app.set('json spaces', 2);
 //        client.hset('customer:admin:users:', '2', JSON.stringify(fd), function (err, userData) {
 //            if(err) console.log(err);
 //    });
-//});
+// });
 //            fd = {
 //                fields : [
 //                    {title : 'First Name', field : 'FirstName', type : 'text'},

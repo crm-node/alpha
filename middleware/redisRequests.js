@@ -40,10 +40,23 @@ module.exports = {
     user : function (customer_id, what, data, callback) {
         switch (what) {
             case 'add':
-                client.hset('customer:' + customer_id + ':users:', "" + uuid.v4(), JSON.stringify(data.user_info), callback);
+                var uniqId = uuid.v4();
+                var devUser = {id : uniqId, login : data.user_info.login, password : data.user_info.password, customer : data.user_info.customer};
+                var userData = JSON.stringify(data.user_info);
+                client.hset('customer:' + customer_id + ':users:', "" + uniqId, userData, function(err, resp){
+                    client.hset('devusers:', "" + devUser.login, JSON.stringify(devUser), function(errD, respD){
+                        callback(err, resp);
+                    });
+                });
                 break;
             case 'edit':
-                client.hset('customer:' + customer_id + ':users:', "" + data.user_id, JSON.stringify(data.user_info), callback);
+                var devUser = {id : data.user_info.id, login : data.user_info.login, password : data.user_info.password, customer : data.user_info.customer};
+                var userData = JSON.stringify(data.user_info);
+                client.hset('customer:' + customer_id + ':users:', "" + data.user_id, userData, function(err, resp) {
+                    client.hset('devusers:', "" + devUser.login, JSON.stringify(devUser), function (errD, respD) {
+                        callback(err, resp);
+                    })
+                });
                 break;
             case 'all':
                 client.hgetall('customer:' + customer_id + ':users:', callback);
@@ -51,12 +64,19 @@ module.exports = {
             case 'get':
                 client.hget('customer:' + customer_id + ':users:', data.user_id, callback);
                 break;
+            case 'devget':
+                client.hget('devusers:', "" + data.login, callback);
+                break;
             case 'del':
-                client.hdel('customer:' + customer_id + ':users:', data.user_id, callback);
+                client.hdel('customer:' + customer_id + ':users:', data.user_id, function(err, resp) {
+                    client.hdel('devusers:', data.login, function (errD, respD) {
+                        callback(err, resp);
+                    })
+                });
                 break;
         }
     },
-
+    
     clients : function (customer_id, what, data, callback) {
         switch (what) {
             case 'add':

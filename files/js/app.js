@@ -355,8 +355,11 @@ app.controller('usersController', ['$http', '$scope', '$rootScope',
             });
         };
         
-        $scope.prepareDeleteUser = function(id) {
-            $scope.userToDelete = id;
+        $scope.prepareDeleteUser = function(id, login) {
+            $scope.userToDelete = {
+                user_id : id,
+                login : login
+            };
         };
         $scope.deleteUser = function() {
             $rootScope.httpRequest("delUser", 'POST', {user_id : $scope.userToDelete}, function (data) {

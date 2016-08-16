@@ -14,24 +14,32 @@ module.exports = function (app, fs) {
             res.send({error: true, message: 'Already logged in', error_code: 'auth_1'}).end();
         }
         else {
-            redisRequests.user(req.body.customer, 'all', {}, function (err, users) {
+            redisRequests.user('', 'devget', {login : req.body.login}, function (err, user) {
                 if(err) res.send({error: true, message: 'Login error', error_code: 'auth_1'}).end();
                 else {
-                    users = _.find(users, function(user, key){
-                        users[key] = JSON.parse(user);
-                        users[key].id = key;
-                        return users[key].login == req.body.login && users[key].password == req.body.password;
-                    });
-                    if(!users) {
-                        res.send({error: true, message: 'Invalid username and password', error_code: 'auth_2'}).end();
+                    user = JSON.parse(user);
+                    if(!user || !user.id) {
+                        res.send({error: true, message: 'No such user.', error_code: 'auth_2'}).end();
                     }
                     else {
-                        redisRequests.setUser(users.id, users, function (err, userData) {
-                            if(err) res.send({error: true, message: 'Login error', error_code: 'auth_3'}).end();
-                            else {
-                                res.send({error: false, message: 'Success', data: users}).end();
-                            }
-                        });
+                        if(user.password != req.body.password) {
+                            res.send({error: true, message: 'Invalid username or password.', error_code: 'auth_2'}).end();
+                        }
+                        else {
+                            redisRequests.user(user.customer, 'get', {user_id : user.id}, function (err, userData) {
+                                if(err || !userData) {
+                                    res.send({error: true, message: "User doesn't exist", error_code: 'auth_1'}).end();
+                                }
+                                else {
+                                    redisRequests.setUser(user.id, JSON.parse(userData), function (err, resp) {
+                                        if(err) res.send({error: true, message: 'Login error', error_code: 'auth_3'}).end();
+                                        else {
+                                            res.send({error: false, message: 'Success', data: JSON.parse(userData)}).end();
+                                        }
+                                    });
+                                }
+                            });
+                        }
                     }
                 }
             });
