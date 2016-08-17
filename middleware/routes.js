@@ -396,9 +396,6 @@ module.exports = function (app, fs) {
         }
     });
 
-
-
-
     app.post('/api/getTransactions', function (req, res) {
         if (req.headers.authorization == undefined) {
             res.send({error: true, message: 'Authorizatioin token required', error_code: 'auth_1'}).end();
@@ -419,6 +416,41 @@ module.exports = function (app, fs) {
                                 transactionsData[key] = JSON.parse(transaction);
                                 transactionsData[key].id = key;
                             });
+                            res.send({
+                                error: false,
+                                message: 'Success',
+                                data: transactionsData
+                            }).end();
+                        }
+                    })
+                }
+            });
+        }
+    });
+
+    app.post('/api/clientTransactions', function (req, res) {
+        if (req.headers.authorization == undefined) {
+            res.send({error: true, message: 'Authorizatioin token required', error_code: 'auth_1'}).end();
+        }
+        else {
+            redisRequests.getUser(req.headers.authorization, function (err, userData) {
+                if(err) {
+                    res.send({error: true, message: "User doesn't exist", error_code: 'auth_1'}).end();
+                }
+                else {
+                    userData = JSON.parse(userData);
+                    redisRequests.transactions(userData.customer, 'all', {}, function (err, transactionsData) {
+                        if(err) {
+                            res.send({error: true, message: 'Transactions request error', error_code: 'cli_1'}).end();
+                        }
+                        else {
+                            _.each(transactionsData, function(transaction, key){
+                                transactionsData[key] = JSON.parse(transaction);
+                                transactionsData[key].id = key;
+                            });
+                            console.log(transactionsData)
+                            transactionsData = _.filter(transactionsData, function(item){ return item.client && item.client.client_id == req.body.client_id});
+                            console.log(transactionsData)
                             res.send({
                                 error: false,
                                 message: 'Success',
