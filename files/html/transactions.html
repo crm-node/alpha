@@ -1,7 +1,8 @@
 <div id="clients">
     <div class="table-responsive">
         <div class="users-top">
-            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addTransactionModal">ADD TRANSACTION</button>
+            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addTransactionModalIn">INPUT</button>
+            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addTransactionModalOut">OUTPUT</button>
             <button type="button" class="btn btn-default pull-right" ng-click="getTransactions()">UPDATE LIST</button>
         </div>
         <div class="filters-menu">
@@ -45,7 +46,7 @@
                     {{transaction.user_name}}
                 </td>
                 <td>
-                    {{transaction.client_name}}
+                    {{transaction.client.client_name}}
                 </td>
                 <td>
                     {{transaction.amount}}
@@ -72,12 +73,12 @@
     </div>
 </div>
 
-<div id="addTransactionModal" class="modal fade" role="dialog">
+<div id="addTransactionModalIn" class="modal fade" role="dialog">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">ADD TRANSACTION</h4>
+                <h4 class="modal-title">INPUT TRANSACTION</h4>
             </div>
             <div class="modal-body">
                 <form class="form-horizontal" role="form" name="transactionAddForm">
@@ -92,15 +93,13 @@
                         <label class="col-sm-2 control-label" for="inputType">Type</label>
                         <select class="form-control" ng-model="transactionToAdd.type" id="inputType">
                             <option value="Client paid">Client paid</option>
-                            <option value="Inventory filled">Inventory filled</option>
-                            <option value="Communal payments">Communal payments</option>
-                            <option value="Food">Food</option>
+                            <option value="Other">Other</option>
                         </select>
                     </div>
                     <div class="form-group" ng-show="transactionToAdd.type == 'Client paid'">
                         <label class="col-sm-2 control-label" for="inputType">Client</label>
-                        <select class="form-control" ng-model="transactionToAdd.client_name" id="inputType">
-                            <option value="{{client.FirstName}} {{client.LastName}}" ng-repeat="client in clientList">{{client.FirstName}} {{client.LastName}}</option>
+                        <select class="form-control" ng-model="transactionToAdd.client" id="inputType">
+                            <option value="{{client}}" ng-repeat="client in clientList">{{client.FirstName}} {{client.LastName}}</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -113,7 +112,54 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-success" ng-click="addTransaction()">ADD</button>
+                <button type="button" class="btn btn-success" ng-click="addTransaction('input')">ADD</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="addTransactionModalOut" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">OUTPUT TRANSACTION</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" role="form" name="transactionAddForm">
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="inputAmount">Amount</label>
+                        <div class="col-sm-10">
+                            <input type="number" class="form-control" id="inputAmount"
+                                   placeholder="Amount" ng-model="transactionToAdd.amount"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="inputType">Type</label>
+                        <select class="form-control" ng-model="transactionToAdd.type" id="inputType">
+                            <option value="Equipment">Equipment</option>
+                            <option value="Clinic">Clinic</option>
+                            <option value="Communal">Communal</option>
+                        </select>
+                    </div>
+                    <!--<div class="form-group" ng-show="transactionToAdd.type == 'Client paid'">-->
+                        <!--<label class="col-sm-2 control-label" for="inputType">Client</label>-->
+                        <!--<select class="form-control" ng-model="transactionToAdd.client_name" id="inputType">-->
+                            <!--<option value="{{client}}" ng-repeat="client in clientList">{{client.FirstName}} {{client.LastName}}</option>-->
+                        <!--</select>-->
+                    <!--</div>-->
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="inputComment">Comment</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="inputComment"
+                                   placeholder="Comment" ng-model="transactionToAdd.comment"/>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" ng-click="addTransaction('output')">ADD</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
         </div>

@@ -188,6 +188,7 @@ app.controller('clientsController', ['$http', '$scope', '$rootScope',
         };
 
         $scope.getClients = function() {
+            $scope.clientList = [];
             $rootScope.httpRequest("getClients", 'POST', {}, function (data) {
                 if(!data.error && data.data && data.data['schema']) {
                     $scope.schema = data.data['schema'];
@@ -294,6 +295,21 @@ app.controller('clientsController', ['$http', '$scope', '$rootScope',
             $scope.editSchemaForm = $scope.editSchemaForm.concat($scope.new_field);
             $scope.new_field = {};
             console.log($scope.editSchemaForm);
+        };
+
+        $scope.getClientTransactions = function(client) {
+            $scope.clientForTransactions = client;
+            $rootScope.httpRequest("clientTransactions", 'POST', {
+                client_id : client.id
+            }, function (data) {
+                if(!data.error) {
+                    $scope.clientForTransactions.transactions = data.data;
+                }
+                else {
+                    $scope.error = data.error;
+                    $scope.message = data.message;
+                }
+            });
         };
     }
 ]);
@@ -452,46 +468,6 @@ app.controller('scheduleController', ['$http', '$scope', '$rootScope',
     }
 ]);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 app.controller('transactionsController', ['$http', '$scope', '$rootScope',
     function($http, $scope, $rootScope) {
 
@@ -527,6 +503,7 @@ app.controller('transactionsController', ['$http', '$scope', '$rootScope',
         $scope.getClients();
         
         $scope.getTransactions = function() {
+            $scope.transactionList = [];
             $rootScope.httpRequest("getTransactions", 'POST', {}, function (data) {
                 if(!data.error && data.data) {
                     $scope.transactionList = _.filter(data.data, function(item){ return item.id != 'schema'; });
@@ -539,17 +516,25 @@ app.controller('transactionsController', ['$http', '$scope', '$rootScope',
             });
         };
 
-        $scope.addTransaction = function() {
+        $scope.addTransaction = function(type) {
             if($scope.transactionAddForm.$valid) {
-                if($scope.transactionToAdd.type != 'Client paid') $scope.transactionToAdd.client_name = undefined;
+                if($scope.transactionToAdd.type != 'Client paid') $scope.transactionToAdd.client = undefined;
+                else {
+                    $scope.transactionToAdd.client = {
+                        client_id : JSON.parse($scope.transactionToAdd.client).id,
+                        client_name : JSON.parse($scope.transactionToAdd.client).FirstName + ' ' + JSON.parse($scope.transactionToAdd.client).LastName
+                    };
+                }
                 $scope.transactionToAdd.customer = $rootScope.userInfo.customer;
                 $scope.transactionToAdd.user_id = $rootScope.userInfo.id;
                 $scope.transactionToAdd.user_name = $rootScope.userInfo.name;
+                $scope.transactionToAdd.amount = (type=='input' ? 1 : -1) * $scope.transactionToAdd.amount;
                 $rootScope.httpRequest("addTransaction", 'POST', {transaction_info : $scope.transactionToAdd}, function (data) {
                     if(!data.error) {
                         $scope.transactionToAdd = {};
                         $scope.getTransactions();
-                        $('#addTransactionModal').modal('hide');
+                        $('#addTransactionModalIn').modal('hide');
+                        $('#addTransactionModalOut').modal('hide');
                     }
                     else {
                         $scope.error = data.error;
