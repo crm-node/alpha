@@ -4,6 +4,9 @@ body {
 .login-panel {
     margin-top: 100px;
 }
+.dropdown-menu>li>a {
+    font-size: 16px;
+}
 #home .navbar-header {
     float: initial;
     display: block;
@@ -68,6 +71,13 @@ body {
 #calendar {
     width: 900px;
     margin: 0 auto;
+}
+#calendar .fc-bg td:hover {
+    cursor: pointer;
+    background-color: #bfd83a;
+}
+#calendar .fc-day.active {
+    background-color: #bfd83a;
 }
 .fc-toolbar button {
     color : #000000

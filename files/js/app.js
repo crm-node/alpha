@@ -379,12 +379,14 @@ app.controller('usersController', ['$http', '$scope', '$rootScope',
 
 app.controller('scheduleController', ['$http', '$scope', '$rootScope',
     function($http, $scope, $rootScope) {
-
+        $scope.eventInfo = {};
+        $scope.dayInfo = '';
         $(document).ready(function() {
             // page is ready
             $('#calendar').fullCalendar({
                 //theme: true, uncomment when css is ready
-                businessHours: true,
+                businessHours: false,
+                weekends: true,
                 firstDay: 1,
                 editable: true,
                 eventLimit: true,
@@ -398,7 +400,9 @@ app.controller('scheduleController', ['$http', '$scope', '$rootScope',
                 events: [
                      {
                         title  : 'Meeting',
-                        start  : '2016-08-16'
+                        start  : '2016-08-16T11:30:00',
+                        end    : '2016-08-18T012:30:00',
+                        allDay: false
                     },
                     {
                         title  : 'Conference',
@@ -415,6 +419,9 @@ app.controller('scheduleController', ['$http', '$scope', '$rootScope',
                     }
                 ],
                 eventClick: function(calEvent, jsEvent, view) {
+                    $scope.eventInfo = calEvent;
+                    $('#eventViewModal').modal('show');
+                    console.log($scope.eventInfo);
 
                     console.log('Event: ', calEvent);
                     console.log('Coordinates: ' + jsEvent.pageX + ',' + jsEvent.pageY);
@@ -422,6 +429,18 @@ app.controller('scheduleController', ['$http', '$scope', '$rootScope',
 
                     // change the border color just for fun
                     $(this).css('border-color', 'red');
+
+                },
+                dayClick : function(date, jsEvent, view) {
+                    $scope.dayInfo = date;
+                    console.log($scope.dayInfo, typeof $scope.dayInfo);
+                    $('#dayViewModal').modal('show');
+                    if($(this).hasClass('active')) {
+                        return false;
+                    } else {
+                        $('.fc-day').removeClass('active');
+                        $(this).addClass('active');
+                    }
 
                 }
             })

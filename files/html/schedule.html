@@ -1,3 +1,52 @@
 <div id="clients" class="schedule">
     <div id="calendar"></div>
+    <!--<div id="dayViewModal" class="modal fade in" role="dialog" style="display: block;" ng-show="showDayViewModal">-->
+        <!--<div class="modal-dialog">-->
+            <!--<div class="modal-content">-->
+                <!--<div class="modal-header">-->
+                    <!--<button type="button" class="close"ng-click="hideDayModal()">&times;</button>-->
+                    <!--<h4 class="modal-title">{{dayInfo}}</h4>-->
+                <!--</div>-->
+                <!--<div class="modal-body">-->
+                <!--</div>-->
+                <!--<div class="modal-footer">-->
+                    <!--<button type="button" class="btn btn-success">ADD</button>-->
+                    <!--<button type="button" class="btn btn-default" ng-click="hideDayModal()">Close</button>-->
+                <!--</div>-->
+            <!--</div>-->
+        <!--</div>-->
+    <!--</div>-->
+    <div id="dayViewModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Some Day Info</h4>
+                </div>
+                <div class="modal-body">
+                    {{dayInfo}}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success">Add</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="eventViewModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Event Info</h4>
+                </div>
+                <div class="modal-body">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success">??</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

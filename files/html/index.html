@@ -27,8 +27,15 @@
                         CUSTOMERS
                     </a>
                 </li>
-                <li class="pull-right">
-                    <a href="#/" ng-click="logout()">{{userInfo.name}}<i class="fa fa-sign-out fa-fw"></i>Logout</a>
+                <li class="dropdown pull-right">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="">
+                        {{userInfo.name}} <i class="fa fa-caret-down"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-user">
+                        <li>
+                            <a href="#/" ng-click="logout()"><i class="fa fa-sign-out fa-fw"></i>Logout</a>
+                        </li>
+                    </ul>
                 </li>
             </ul>
         </div>
