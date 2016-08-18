@@ -122,9 +122,10 @@ module.exports = {
     },
 
     archive : function (customer_id, what, type, data, callback) {
+        var i, multiR;
         switch (what) {
             case 'add':
-                var multiR = client.multi();
+                multiR = client.multi();
                 _.each(data, function(dataByYear, keyY){
                     _.each(dataByYear, function(dataByDay, keyD){
                         multiR.hmset('customer:' + customer_id + ':archive:' + type + ':' + keyY, "" + keyD, JSON.stringify(dataByDay));
@@ -133,13 +134,24 @@ module.exports = {
                 multiR.exec(callback);
                 break;
             case 'get':
-                var daysDiff, yearDiff, finalDayArray = [];
-                if(data.from.year == data.to.year) {
-                    daysDiff = data.to.day - data.from.day;
-                    for(var i=0; i<daysDiff+1; i++) {finalDayArray.push(Number(data.from.day) + i + "");}
-                    client.hmget('customer:' + customer_id + ':archive:' + type + ':' + data.from.year, finalDayArray, callback);
+                function generateDays(from, to) {
+                    var arr=[], i;
+                    for(i=from; i<=to; i++) { arr.push(i + ""); }
+                    return arr;
                 }
-
+                if(data.from.year == data.to.year) {
+                    client.hmget('customer:' + customer_id + ':archive:' + type + ':' + data.from.year, generateDays(data.from.day, data.to.day), callback);
+                }
+                else {
+                    multiR = client.multi();
+                    var d1 = data.from.year < data.to.year ? data.from : data.to, d2 = data.from.year < data.to.year ? data.to : data.from;
+                    multiR.hmget('customer:' + customer_id + ':archive:' + type + ':' + d1.year, generateDays(d1.day, (d1.year%4 == 0 ? 366 : 355)));
+                    for(i=d1.year+1; i<d2.year; i++) {
+                        multiR.hmget('customer:' + customer_id + ':archive:' + type + ':' + i, generateDays(1, (i%4 == 0 ? 366 : 355)));
+                    }
+                    multiR.hmget('customer:' + customer_id + ':archive:' + type + ':' + d2.year, generateDays(1, d2.day));
+                    multiR.exec(callback);
+                }
                 break;
         }
     }

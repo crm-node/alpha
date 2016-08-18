@@ -696,6 +696,7 @@ module.exports = function (app, fs) {
                                     res.send({error: true, message: 'Transactions request error', error_code: 'cli_1'}).end();
                                 }
                                 else {
+                                    if(archiveData[0]) {archiveData = _.flatten(archiveData);}
                                     archiveData = _.filter(archiveData, function(item){return item != null;});
                                     archiveData = _.each(archiveData, function(item, k){archiveData[k] = JSON.parse(item);});
                                     archiveData = _.flatten(archiveData);
