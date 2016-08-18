@@ -127,14 +127,19 @@ module.exports = {
                 var multiR = client.multi();
                 _.each(data, function(dataByYear, keyY){
                     _.each(dataByYear, function(dataByDay, keyD){
-                        console.log('customer:' + customer_id + ':archive:' + type + ':' + keyY, "" + keyD)
                         multiR.hmset('customer:' + customer_id + ':archive:' + type + ':' + keyY, "" + keyD, JSON.stringify(dataByDay));
                     })
                 });
                 multiR.exec(callback);
                 break;
             case 'get':
-                client.hgetall('customer:' + customer_id + ':archive:' + type + ':' , callback);
+                var daysDiff, yearDiff, finalDayArray = [];
+                if(data.from.year == data.to.year) {
+                    daysDiff = data.to.day - data.from.day;
+                    for(var i=0; i<daysDiff+1; i++) {finalDayArray.push(Number(data.from.day) + i + "");}
+                    client.hmget('customer:' + customer_id + ':archive:' + type + ':' + data.from.year, finalDayArray, callback);
+                }
+
                 break;
         }
     }

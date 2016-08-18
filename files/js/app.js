@@ -646,10 +646,14 @@ app.controller('archiveController', ['$http', '$scope', '$rootScope',
 
         $scope.getArchiveTransactions = function() {
             $scope.transactionList = [];
-            $rootScope.httpRequest("getTransactions", 'POST', {}, function (data) {
+            $rootScope.httpRequest("getFromArchive", 'POST', {
+                type : 'transactions',
+                dateFrom : $scope.dateFrom, 
+                dateTill : $scope.dateTill
+            }, function (data) {
                 if(!data.error && data.data) {
-                    $scope.transactionList = _.filter(data.data, function(item){ return item.id != 'schema'; });
-                    $scope.changeSortType('dt');
+                    console.log(data)
+                    $scope.transactionList = data.data;
                 }
                 else {
                     $scope.error = data.error;

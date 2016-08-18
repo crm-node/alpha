@@ -52,7 +52,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr ng-repeat="(key, transaction) in transactionList | orderBy:sortType:sortReverse">
+            <tr ng-repeat="transaction in transactionList | orderBy:sortType:sortReverse">
                 <td>
                     {{transaction.dt | date:"dd.MM.yyyy 'at' HH:mm"}}
                 </td>

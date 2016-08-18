@@ -12,7 +12,6 @@ Date.prototype.isLeapYear = function() {
     return ((year % 100) != 0 || (year % 400) == 0);
 };
 
-// Get Day of Year
 Date.prototype.getDOY = function() {
     var dayCount = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
     var mn = this.getMonth();
@@ -608,31 +607,28 @@ module.exports = function (app, fs) {
                 else {
                     userData = JSON.parse(userData);
                     function archiveThis(type, keysToDelete, data) {
-                        redisRequests.archive(userData.customer, 'add', type, data, function (err, archiveData) {
+                        redisRequests[''+type](userData.customer, 'del-multi', keysToDelete, function (err, transactionsData) {
                             if(err) {
                                 res.send({error: true, message: 'Transactions request error', error_code: 'cli_1'}).end();
                             }
                             else {
-                                customer:admin:archive:transactions:2016
-                                client.hgetall('customer:' + userData.customer + ':archive:' + type + ':2016', function(err, dd){
-                                    if(!err) console.log(dd);
+                                redisRequests.archive(userData.customer, 'add', type, data, function (err, archiveData) {
+                                    if(err) {
+                                        res.send({error: true, message: 'Transactions request error', error_code: 'cli_1'}).end();
+                                    }
+                                    else {
+                                        client.hgetall('customer:' + userData.customer + ':archive:' + type + ':2016', function(err, dd){
+                                            if(!err) console.log(dd);
+                                        });
+                                        res.send({
+                                            error: false,
+                                            message: 'Success',
+                                            data: archiveData
+                                        }).end();
+                                    }
                                 });
-                                res.send({
-                                    error: false,
-                                    message: 'Success',
-                                    data: archiveData
-                                }).end();
                             }
                         });
-                        // redisRequests[''+type](userData.customer, 'del-multi', keysToDelete, function (err, transactionsData) {
-                        //     if(err) {
-                        //         res.send({error: true, message: 'Transactions request error', error_code: 'cli_1'}).end();
-                        //     }
-                        //     else {
-                        //
-                        //     }
-                        // });
-
                     }
                     switch (req.body.type) {
                         case 'transactions':
@@ -668,6 +664,57 @@ module.exports = function (app, fs) {
         }
     });
 
+    app.post('/api/getFromArchive', function (req, res) {
+        if (req.headers.authorization == undefined) {
+            res.send({error: true, message: 'Authorizatioin token required', error_code: 'auth_1'}).end();
+        }
+        else {
+            redisRequests.getUser(req.headers.authorization, function (err, userData) {
+                if(err) {
+                    res.send({error: true, message: "User doesn't exist", error_code: 'auth_1'}).end();
+                }
+                else {
+                    userData = JSON.parse(userData);
+                    switch (req.body.type) {
+                        case 'transactions':
+                            req.body.dateFrom = new Date(req.body.dateFrom);
+                            req.body.dateTill = new Date(req.body.dateTill);
+                            var DateFrom = req.body.dateFrom <= req.body.dateTill ? req.body.dateFrom : req.body.dateTill;
+                            var DateTill = req.body.dateFrom <= req.body.dateTill ? req.body.dateTill : req.body.dateFrom;
+                            var formData = {
+                                from : {
+                                    year : DateFrom.getFullYear(),
+                                    day : DateFrom.getDOY()
+                                },
+                                to : {
+                                    year : DateTill.getFullYear(),
+                                    day : DateTill.getDOY()
+                                }
+                            };
+                            redisRequests.archive(userData.customer, 'get', req.body.type, formData, function (err, archiveData) {
+                                if(err) {
+                                    res.send({error: true, message: 'Transactions request error', error_code: 'cli_1'}).end();
+                                }
+                                else {
+                                    archiveData = _.filter(archiveData, function(item){return item != null;});
+                                    archiveData = _.each(archiveData, function(item, k){archiveData[k] = JSON.parse(item);});
+                                    archiveData = _.flatten(archiveData);
+                                    res.send({
+                                        error: false,
+                                        message: 'Success',
+                                        data: archiveData
+                                    }).end();
+                                }
+                            });
+                            break;
+                        case 'visits':
+                            break;
+                    }
+                }
+            });
+        }
+    });
+    
     app.get('*', function (req, res) {
         res.sendFile('index.html', { root: './files/' });
     });
