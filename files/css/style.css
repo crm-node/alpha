@@ -4,6 +4,9 @@ body {
 .login-panel {
     margin-top: 100px;
 }
+.dropdown-menu>li>a {
+    font-size: 16px;
+}
 #home .navbar-header {
     float: initial;
     display: block;
@@ -57,18 +60,6 @@ body {
     border-radius: 21px;
 }
 
-
-
-.schedule {
-    text-align: center;
-    font-size: 14px;
-    font-family: "Lucida Grande",Helvetica,Arial,Verdana,sans-serif;
-}
-
-#calendar {
-    width: 900px;
-    margin: 0 auto;
-}
 .fc-toolbar button {
     color : #000000
 }
