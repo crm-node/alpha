@@ -1,15 +1,28 @@
 <div id="clients">
     <div class="table-responsive">
-        <div class="users-top">
-            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addTransactionModalIn">INPUT</button>
-            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addTransactionModalOut">OUTPUT</button>
-            <button type="button" class="btn btn-default pull-right" ng-click="sendToArchive()">SEND TO ARCHIVE</button>
-            <button type="button" class="btn btn-default pull-right" ng-click="getTransactions()">UPDATE LIST</button>
-        </div>
-        <div class="filters-menu">
 
+        <div class="users-top">
+            <div class="col-sm-8">
+                <ul class="nav nav-tabs">
+                    <li class="active"><a href="" ng-click="changeArchiveSection('transactions')">Transactions</a></li>
+                    <li><a href="" ng-click="changeArchiveSection('visits')">Visits</a></li>
+                </ul>
+            </div>
+            <div class="col-sm-4">
+                <button type="button" class="btn btn-default pull-right" ng-click="updateArchive(currentSection)">UPDATE LIST</button>
+            </div>
         </div>
-        <table class="table table-striped table-hover" ng-init="getTransactions()">
+        <div class="users-top pull-left">
+            <div class="col-sm-4">
+                <label class="col-sm-8 control-label" for="fromDate">From Date</label>
+                <input type="date" ng-model="dateFrom" id="fromDate">
+            </div>
+            <div class="col-sm-4 pull-left">
+                <label class="col-sm-8 control-label" for="tillDate">Till Date</label>
+                <input type="date" ng-model="dateTill" id="tillDate">
+            </div>
+        </div>
+        <table class="table table-striped table-hover" ng-if="currentSection == 'transactions'">
             <thead>
             <tr>
             <tr>
@@ -145,10 +158,10 @@
                         </select>
                     </div>
                     <!--<div class="form-group" ng-show="transactionToAdd.type == 'Client paid'">-->
-                        <!--<label class="col-sm-2 control-label" for="inputType">Client</label>-->
-                        <!--<select class="form-control" ng-model="transactionToAdd.client_name" id="inputType">-->
-                            <!--<option value="{{client}}" ng-repeat="client in clientList">{{client.FirstName}} {{client.LastName}}</option>-->
-                        <!--</select>-->
+                    <!--<label class="col-sm-2 control-label" for="inputType">Client</label>-->
+                    <!--<select class="form-control" ng-model="transactionToAdd.client_name" id="inputType">-->
+                    <!--<option value="{{client}}" ng-repeat="client in clientList">{{client.FirstName}} {{client.LastName}}</option>-->
+                    <!--</select>-->
                     <!--</div>-->
                     <div class="form-group">
                         <label class="col-sm-2 control-label" for="inputComment">Comment</label>

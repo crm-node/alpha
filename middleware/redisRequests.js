@@ -115,7 +115,29 @@ module.exports = {
             case 'del':
                 client.hdel('customer:' + customer_id + ':transaction:', data.transaction_id.transaction_id, callback);
                 break;
+            case 'del-multi':
+                client.hdel('customer:' + customer_id + ':transaction:', data, callback);
+                break;
+        }
+    },
+
+    archive : function (customer_id, what, type, data, callback) {
+        switch (what) {
+            case 'add':
+                var multiR = client.multi();
+                _.each(data, function(dataByYear, keyY){
+                    _.each(dataByYear, function(dataByDay, keyD){
+                        console.log('customer:' + customer_id + ':archive:' + type + ':' + keyY, "" + keyD)
+                        multiR.hmset('customer:' + customer_id + ':archive:' + type + ':' + keyY, "" + keyD, JSON.stringify(dataByDay));
+                    })
+                });
+                multiR.exec(callback);
+                break;
+            case 'get':
+                client.hgetall('customer:' + customer_id + ':archive:' + type + ':' , callback);
+                break;
         }
     }
+
     
 };

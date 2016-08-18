@@ -4,8 +4,23 @@
 
 //var dbRequest = require('./dbRequests');
 var redisRequests = require('./redisRequests');
+var util = require('util');
 
+Date.prototype.isLeapYear = function() {
+    var year = this.getFullYear();
+    if((year & 3) != 0) return false;
+    return ((year % 100) != 0 || (year % 400) == 0);
+};
 
+// Get Day of Year
+Date.prototype.getDOY = function() {
+    var dayCount = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
+    var mn = this.getMonth();
+    var dn = this.getDate();
+    var dayOfYear = dayCount[mn] + dn;
+    if(mn > 1 && this.isLeapYear()) dayOfYear++;
+    return dayOfYear;
+};
 
 module.exports = function (app, fs) {
 
@@ -576,6 +591,78 @@ module.exports = function (app, fs) {
                         })
                     }
                     else res.send({error: true, message: 'Transactions request error', error_code: 'cli_1'}).end();
+                }
+            });
+        }
+    });
+
+    app.post('/api/sendToArchive', function (req, res) {
+        if (req.headers.authorization == undefined) {
+            res.send({error: true, message: 'Authorizatioin token required', error_code: 'auth_1'}).end();
+        }
+        else {
+            redisRequests.getUser(req.headers.authorization, function (err, userData) {
+                if(err) {
+                    res.send({error: true, message: "User doesn't exist", error_code: 'auth_1'}).end();
+                }
+                else {
+                    userData = JSON.parse(userData);
+                    function archiveThis(type, keysToDelete, data) {
+                        redisRequests.archive(userData.customer, 'add', type, data, function (err, archiveData) {
+                            if(err) {
+                                res.send({error: true, message: 'Transactions request error', error_code: 'cli_1'}).end();
+                            }
+                            else {
+                                customer:admin:archive:transactions:2016
+                                client.hgetall('customer:' + userData.customer + ':archive:' + type + ':2016', function(err, dd){
+                                    if(!err) console.log(dd);
+                                });
+                                res.send({
+                                    error: false,
+                                    message: 'Success',
+                                    data: archiveData
+                                }).end();
+                            }
+                        });
+                        // redisRequests[''+type](userData.customer, 'del-multi', keysToDelete, function (err, transactionsData) {
+                        //     if(err) {
+                        //         res.send({error: true, message: 'Transactions request error', error_code: 'cli_1'}).end();
+                        //     }
+                        //     else {
+                        //
+                        //     }
+                        // });
+
+                    }
+                    switch (req.body.type) {
+                        case 'transactions':
+                            redisRequests.transactions(userData.customer, 'all', {}, function (err, transactionsData) {
+                                if(err) {
+                                    res.send({error: true, message: 'Transactions request error', error_code: 'cli_1'}).end();
+                                }
+                                else {
+                                    _.each(transactionsData, function(transaction, key){
+                                        transactionsData[key] = JSON.parse(transaction);
+                                        transactionsData[key].id = key;
+                                    });
+                                    var archiveData = {}, tempTransactions = util._extend({}, transactionsData),
+                                        transactionKeys = _.pluck(transactionsData, 'id');
+                                    tempTransactions = _.groupBy(tempTransactions, function(item){
+                                        return new Date(item.dt).getFullYear();
+                                    });
+                                    _.each(tempTransactions, function(yearData, key){
+                                        archiveData["" + key] = _.groupBy(yearData, function(item){
+                                            return new Date(item.dt).getDOY();
+                                        });
+                                    });
+                                    archiveThis(req.body.type, transactionKeys, archiveData);
+                                }
+                            });
+                            break;
+                        case 'visits':
+                            break;
+                    }
+
                 }
             });
         }
