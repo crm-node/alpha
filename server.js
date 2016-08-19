@@ -13,9 +13,6 @@ global.request = require('request');
 
 var port = parseInt(process.env.OPENSHIFT_NODEJS_PORT) || parseInt(process.env.PORT) ||  999;
 
-//var redis = require('redis');
-//global.client = redis.createClient();
-
 var redis = require('redis');
 global.client = redis.createClient(17305, 'redis-17305.c8.us-east-1-3.ec2.cloud.redislabs.com', {no_ready_check: true});
 client.auth('dontfuckwithmyteam', function (err) {
@@ -36,6 +33,30 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use('/favicon.ico', express.static('./files/img/favicon.ico'));
 app.set('json spaces', 2);
 
+require('./middleware/routes.js')(app, client);
+global.serverEvents = require('./middleware/serverEvents.js');
+serverEvents.init();
+
+console.time("dbsave");
+var in5sec = serverEvents.atFixedTime(500, function () {
+    console.timeEnd("dbsave");
+});
+in5sec();
+var in5sec = serverEvents.atFixedTime(2, function () {
+    console.timeEnd("dbsave");
+});
+
+serverEvents.everyFixedTime("2999-12-31T01:27:00.000Z", function(time){
+    console.log(time)
+});
+
+var server = app.listen(port || 999, function() {
+    console.log("listening on " + port);
+});
+
+
+//var redis = require('redis');
+//global.client = redis.createClient();
 
 // client.hgetall('devusers:', function (err, userData) {
 //     if (err) console.error(err);
@@ -101,8 +122,4 @@ app.set('json spaces', 2);
 //        });
 //    });
 //});
-require('./middleware/routes.js')(app, client);
 
-var server = app.listen(port || 999, function() {
-    console.log("listening on " + port);
-});

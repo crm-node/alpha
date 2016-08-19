@@ -154,7 +154,27 @@ module.exports = {
                 }
                 break;
         }
+    },
+
+    upcomingEvents : function (customer_id, what, data, callback) {
+        var date = "" + new Date(data.date).getDay() + "-" + new Date(data.date).getMonth() + "-" + new Date(data.date).getFullYear();
+        switch (what) {
+            case 'add':
+                client.hset('upcomingEvents:', "" + customer_id + ':date:' + date, JSON.stringify(data.upcomingEvents), callback);
+                break;
+            case 'edit':
+                client.hset('upcomingEvents:', "" + customer_id + ':date:' + date, JSON.stringify(data.upcomingEvents), callback);
+                break;
+            case 'all':
+                client.hgetall('upcomingEvents:', "" + customer_id + ':date:', callback);
+                break;
+            case 'get':
+                client.hget('upcomingEvents:', "" + customer_id + ':date:', date, callback);
+                break;
+            case 'del':
+                client.hdel('upcomingEvents:', "" + customer_id + ':date:', date, callback);
+                break;
+        }
     }
 
-    
 };

@@ -168,6 +168,21 @@ app.controller('mainController', ['$http', '$routeParams', '$scope', '$rootScope
 app.controller('homeController', ['$http', '$scope', '$rootScope',
     function($http, $scope, $rootScope) {
 
+        $scope.addUpcomingEventForm = {};
+
+        $scope.getUpcomingEvents = function() {
+            $rootScope.httpRequest("getUpcomingEvents", 'POST', {}, function (data) {
+                if(!data.error && data.data) {
+                    $scope.upcomingEvents = data.data;
+                }
+                else {
+                    $scope.error = data.error;
+                    $scope.message = data.message;
+                }
+            });
+        };
+        $scope.getUpcomingEvents();
+
     }
 ]);
 
