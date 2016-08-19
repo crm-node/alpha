@@ -5,6 +5,8 @@
 //var dbRequest = require('./dbRequests');
 var redisRequests = require('./redisRequests');
 var util = require('util');
+var uuid = require('node-uuid');
+
 
 Date.prototype.isLeapYear = function() {
     var year = this.getFullYear();
@@ -410,6 +412,232 @@ module.exports = function (app, fs) {
         }
     });
 
+    app.post('/api/getAllEvents', function (req, res) {
+        if (req.headers.authorization == undefined) {
+            res.send({error: true, message: 'Authorizatioin token required', error_code: 'auth_1'}).end();
+        }
+        else {
+            redisRequests.getUser(req.headers.authorization, function (err, userData) {
+                if(err) {
+                    res.send({error: true, message: "User doesn't exist", error_code: 'auth_1'}).end();
+                }
+                else {
+                    userData = JSON.parse(userData);
+                   // console.log(req.body.date)
+                    //req.body.date = ''
+                    redisRequests.events(userData.customer, 'all', '', {date : req.body.date}, function (err, eventsData) {
+                        if(err) {
+                            res.send({error: true, message: 'Events request error', error_code: 'cli_1'}).end();
+                        }
+                        else {
+                            console.log(eventsData);
+                            _.each(eventsData, function(event, key){
+                                eventsData[key] = JSON.parse(event);
+                                eventsData[key].id = key;
+                            });
+                            res.send({
+                                error: false,
+                                message: 'Success',
+                                data: eventsData
+                            }).end();
+                        }
+                    });
+                }
+            });
+        }
+    });
+
+    app.post('/api/getEvents', function (req, res) {
+        if (req.headers.authorization == undefined) {
+            res.send({error: true, message: 'Authorizatioin token required', error_code: 'auth_1'}).end();
+        }
+        else {
+            redisRequests.getUser(req.headers.authorization, function (err, userData) {
+                if(err || !userData) {
+                    res.send({error: true, message: "User doesn't exist", error_code: 'auth_1'}).end();
+                }
+                else {
+                    userData = JSON.parse(userData);
+                    var date = "" + new Date(req.body.dt).getDay() + "-" + new Date(req.body.dt).getMonth() + "-" + new Date(req.body.dt).getFullYear();
+                    redisRequests.events(userData.customer, 'get', date, {}, function (err, cliensData) {
+                        if(err) {
+                            res.send({error: true, message: 'Events request error', error_code: 'cli_1'}).end();
+                        }
+                        else {
+                            res.send({
+                                error: false,
+                                message: 'Success',
+                                data: JSON.parse(cliensData)
+                            }).end();
+                        }
+                    })
+                }
+            });
+        }
+    });
+
+    app.post('/api/editEvent', function (req, res) {
+        if (req.headers.authorization == undefined) {
+            res.send({error: true, message: 'Authorizatioin token required', error_code: 'auth_1'}).end();
+        }
+        else {
+            redisRequests.getUser(req.headers.authorization, function (err, userData) {
+                if(err || !userData) {
+                    res.send({error: true, message: "User doesn't exist", error_code: 'auth_1'}).end();
+                }
+                else {
+                    userData = JSON.parse(userData);
+                    var date = "" + new Date(req.body.event.dt).getDay() + "-" + new Date(req.body.event.dt).getMonth() + "-" + new Date(req.body.event.dt).getFullYear();
+                    if(userData && req.body.event) {
+                        redisRequests.events(userData.customer, 'get', date, {}, function (err, eventsData) {
+                            if(err) {
+                                res.send({error: true, message: 'Events request error', error_code: 'cli_1'}).end();
+                            }
+                            else {
+                                if(eventsData != null && eventsData != "[]") {eventsData = JSON.parse(eventsData);}
+                                else eventsData = [];
+                                _.each(eventsData, function(event, key){
+                                    if(event.id == req.body.event.id) {
+                                        eventsData[key] = req.body.event;
+                                    }
+                                });
+                                redisRequests.events(userData.customer, 'add', date, {date : req.body.event.dt, events : eventsData}, function (err, eventData) {
+                                    if(err) {
+                                        res.send({error: true, message: 'Events request error', error_code: 'cli_1'}).end();
+                                    }
+                                    else {
+                                        res.send({
+                                            error: false,
+                                            message: 'Success',
+                                            data: JSON.parse(eventData)
+                                        }).end();
+                                    }
+                                })
+                            }
+                        });
+                    }
+                    else res.send({error: true, message: 'Events request error', error_code: 'cli_1'}).end();
+                }
+            });
+        }
+    });
+
+    app.post('/api/addEvent', function (req, res) {
+        if (req.headers.authorization == undefined) {
+            res.send({error: true, message: 'Authorizatioin token required', error_code: 'auth_1'}).end();
+        }
+        else {
+            redisRequests.getUser(req.headers.authorization, function (err, userData) {
+                if(err || !userData) {
+                    res.send({error: true, message: "User doesn't exist", error_code: 'auth_1'}).end();
+                }
+                else {
+                    userData = JSON.parse(userData);
+                    var date = "" + new Date(req.body.event.dt).getDay() + "-" + new Date(req.body.event.dt).getMonth() + "-" + new Date(req.body.event.dt).getFullYear();
+                    if(userData && req.body.event) {
+                        redisRequests.events(userData.customer, 'get', date, {}, function (err, eventsData) {
+                            if(err) {
+                                res.send({error: true, message: 'Events request error', error_code: 'cli_1'}).end();
+                            }
+                            else {
+                                if(eventsData != null && eventsData != "[]") {eventsData = JSON.parse(eventsData);}
+                                else eventsData = [];
+                                req.body.event.id = "" + uuid.v4();
+                                eventsData.push(req.body.event);
+                                redisRequests.events(userData.customer, 'add', date, {date : req.body.event.dt, events : eventsData}, function (err, eventData) {
+                                    if(err) {
+                                        res.send({error: true, message: 'Events request error', error_code: 'cli_1'}).end();
+                                    }
+                                    else {
+                                        res.send({
+                                            error: false,
+                                            message: 'Success',
+                                            data: JSON.parse(eventData)
+                                        }).end();
+                                    }
+                                })
+                            }
+                        });
+                    }
+                    else res.send({error: true, message: 'Events request error', error_code: 'cli_1'}).end();
+                }
+            });
+        }
+    });
+
+    app.post('/api/delEvent', function (req, res) {
+        if (req.headers.authorization == undefined) {
+            res.send({error: true, message: 'Authorizatioin token required', error_code: 'auth_1'}).end();
+        }
+        else {
+            redisRequests.getUser(req.headers.authorization, function (err, userData) {
+                if(err || !userData) {
+                    res.send({error: true, message: "User doesn't exist", error_code: 'auth_1'}).end();
+                }
+                else {
+                    userData = JSON.parse(userData);
+                    var date = "" + new Date(req.body.event.dt).getDay() + "-" + new Date(req.body.event.dt).getMonth() + "-" + new Date(req.body.event.dt).getFullYear();
+                    if(userData && req.body.event) {
+                        redisRequests.events(userData.customer, 'get', date, {}, function (err, eventsData) {
+                            if(err) {
+                                res.send({error: true, message: 'Events request error', error_code: 'cli_1'}).end();
+                            }
+                            else {
+                                if(eventsData != null && eventsData != "[]") {eventsData = JSON.parse(eventsData);}
+                                else eventsData = [];
+                                eventsData = _.filter(eventsData, function(event, key){
+                                    return event.id != req.body.event.id;
+                                });
+                                redisRequests.events(userData.customer, 'add', date, {date : req.body.event.dt, events : eventsData}, function (err, eventData) {
+                                    if(err) {
+                                        res.send({error: true, message: 'Events request error', error_code: 'cli_1'}).end();
+                                    }
+                                    else {
+                                        res.send({
+                                            error: false,
+                                            message: 'Success',
+                                            data: JSON.parse(eventData)
+                                        }).end();
+                                    }
+                                })
+                            }
+                        });
+                    }
+                    else res.send({error: true, message: 'Events request error', error_code: 'cli_1'}).end();
+                }
+            });
+        }
+    });
+
+    app.post('/api/delEventsDay', function (req, res) {
+        if (req.headers.authorization == undefined) {
+            res.send({error: true, message: 'Authorizatioin token required', error_code: 'auth_1'}).end();
+        }
+        else {
+            redisRequests.getUser(req.headers.authorization, function (err, userData) {
+                if(err || !userData) {
+                    res.send({error: true, message: "User doesn't exist", error_code: 'auth_1'}).end();
+                }
+                else {
+                    userData = JSON.parse(userData);
+                    var date = "" + new Date(req.body.event.dt).getDay() + "-" + new Date(req.body.event.dt).getMonth() + "-" + new Date(req.body.event.dt).getFullYear();
+                    redisRequests.events(userData.customer, 'del', date, {}, function (err, eventData) {
+                        if(err) {
+                            res.send({error: true, message: 'Events request error', error_code: 'cli_1'}).end();
+                        }
+                        else {
+                            res.send({
+                                error: false,
+                                message: 'Success',
+                                data: JSON.parse(eventData)
+                            }).end();
+                        }
+                    })
+                }
+            });
+        }
+    });
+
     app.post('/api/getTransactions', function (req, res) {
         if (req.headers.authorization == undefined) {
             res.send({error: true, message: 'Authorizatioin token required', error_code: 'auth_1'}).end();
@@ -719,7 +947,7 @@ module.exports = function (app, fs) {
             res.send({error: true, message: 'Authorizatioin token required', error_code: 'auth_1'}).end();
         }
         else {
-            redisRequests.getUpcomingEvent(req.headers.authorization, function (err, upcomingEventData) {
+            redisRequests.upcomingEvents(req.headers.authorization, function (err, upcomingEventData) {
                 if(err || !upcomingEventData) {
                     res.send({error: true, message: "UpcomingEvent doesn't exist", error_code: 'auth_1'}).end();
                 }
@@ -760,7 +988,7 @@ module.exports = function (app, fs) {
             res.send({error: true, message: 'Authorizatioin token required', error_code: 'auth_1'}).end();
         }
         else {
-            redisRequests.getUpcomingEvent(req.headers.authorization, function (err, upcomingEventData) {
+            redisRequests.upcomingEvents(req.headers.authorization, function (err, upcomingEventData) {
                 if(err || !upcomingEventData) {
                     res.send({error: true, message: "UpcomingEvent doesn't exist", error_code: 'auth_1'}).end();
                 }
@@ -790,7 +1018,7 @@ module.exports = function (app, fs) {
             res.send({error: true, message: 'Authorizatioin token required', error_code: 'auth_1'}).end();
         }
         else {
-            redisRequests.getUpcomingEvent(req.headers.authorization, function (err, upcomingEventData) {
+            redisRequests.upcomingEvents(req.headers.authorization, function (err, upcomingEventData) {
                 if(err || !upcomingEventData) {
                     res.send({error: true, message: "UpcomingEvent doesn't exist", error_code: 'auth_1'}).end();
                 }
@@ -820,7 +1048,7 @@ module.exports = function (app, fs) {
             res.send({error: true, message: 'Authorizatioin token required', error_code: 'auth_1'}).end();
         }
         else {
-            redisRequests.getUpcomingEvent(req.headers.authorization, function (err, upcomingEventData) {
+            redisRequests.upcomingEvents(req.headers.authorization, function (err, upcomingEventData) {
                 if(err || !upcomingEventData) {
                     res.send({error: true, message: "UpcomingEvent doesn't exist", error_code: 'auth_1'}).end();
                 }
@@ -849,7 +1077,7 @@ module.exports = function (app, fs) {
             res.send({error: true, message: 'Authorizatioin token required', error_code: 'auth_1'}).end();
         }
         else {
-            redisRequests.getUpcomingEvent(req.headers.authorization, function (err, upcomingEventData) {
+            redisRequests.upcomingEvents(req.headers.authorization, function (err, upcomingEventData) {
                 if(err || !upcomingEventData) {
                     res.send({error: true, message: "UpcomingEvent doesn't exist", error_code: 'auth_1'}).end();
                 }

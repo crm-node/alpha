@@ -1,3 +1,108 @@
+<div id="clients">
+    <div class="table-responsive">
+        <div class="users-top">
+            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addEventModal">ADD EVENT</button>
+            <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#editEventSchema" ng-click="prepareEditSchema()">EDIT SCHEMA</button>
+            <button type="button" class="btn btn-default pull-right" ng-click="getEvents()">UPDATE LIST</button>
+        </div>
+    </div>
+</div>
+
+<div id="addEventModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">ADD EVENT</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal ng-pristine ng-valid" role="form" name="eventAddForm">
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="inputClientName">Client Name</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="inputClientName"
+                                   placeholder="Client Name" ng-model="eventToAdd.clientname">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="inputDescription">Description</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="inputDescription"
+                                   placeholder="Description" ng-model="eventToAdd.description">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="inputDate">Date</label>
+                        <div class="col-sm-10">
+                            <input type="datetime-local" class="form-control" id="inputDate"
+                                   placeholder="Registration" ng-model="eventToAdd.dt">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" ng-click="addEvent()">ADD</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="confirmDeleteEventModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Are you sure you want to delete this event?</h4>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" ng-click="deleteEvent()" data-dismiss="modal">Delete</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="editEventModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">EDIT EVENT</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal ng-pristine ng-valid" role="form" name="eventAddForm">
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="inputClientName">Client Name</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="inputClientName"
+                                   placeholder="Event Name" ng-model="eventToEdit.clientname">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="inputDescription">Description</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="inputDescription"
+                                   placeholder="Description" ng-model="eventToEdit.description">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="inputDate">Date</label>
+                        <div class="col-sm-10">
+                            <input type="datetime-local" class="form-control" id="inputDate"
+                                   placeholder="Registration" ng-model="eventToEdit.dt">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" ng-click="editEvent()">EDIT</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="calendar">
     <div style="height:800px;">
         <calendar-md id="calendar-demo"

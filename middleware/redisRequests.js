@@ -110,13 +110,36 @@ module.exports = {
                 client.hgetall('customer:' + customer_id + ':transaction:', callback);
                 break;
             case 'get':
-                client.hget('customer:' + customer_id + ':transaction:' + data.transaction_id, callback);
+                client.hget('customer:' + customer_id + ':transaction:', data.transaction_id, callback);
                 break;
             case 'del':
                 client.hdel('customer:' + customer_id + ':transaction:', data.transaction_id.transaction_id, callback);
                 break;
             case 'del-multi':
                 client.hdel('customer:' + customer_id + ':transaction:', data, callback);
+                break;
+        }
+    },
+
+    events : function (customer_id, what, date, data, callback) {
+        switch (what) {
+            case 'add':
+                client.hset('customer:' + customer_id + ':event:'  , "" + date, JSON.stringify(data.events), callback);
+                break;
+            case 'edit':
+                client.hset('customer:' + customer_id + ':event:', "" + date, "" + JSON.stringify(data.events), callback);
+                break;
+            case 'all':
+                client.hgetall('customer:' + customer_id + ':event:', callback);
+                break;
+            case 'get':
+                client.hget('customer:' + customer_id + ':event:',  date, callback);
+                break;
+            case 'del':
+                client.hdel('customer:' + customer_id + ':event:', date, callback);
+                break;
+            case 'del-multi':
+                client.hdel('customer:' + customer_id + ':event:', data, callback);
                 break;
         }
     },
@@ -157,7 +180,8 @@ module.exports = {
     },
 
     upcomingEvents : function (customer_id, what, data, callback) {
-        var date = "" + new Date(data.date).getDay() + "-" + new Date(data.date).getMonth() + "-" + new Date(data.date).getFullYear();
+        var date;
+        if(data && data.date) date = "" + new Date(data.date).getDay() + "-" + new Date(data.date).getMonth() + "-" + new Date(data.date).getFullYear();
         switch (what) {
             case 'add':
                 client.hset('upcomingEvents:', "" + customer_id + ':date:' + date, JSON.stringify(data.upcomingEvents), callback);
