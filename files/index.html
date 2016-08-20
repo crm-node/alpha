@@ -19,10 +19,6 @@
 
     <script src="js/lib/angular.min.js"></script>
 
-</head>
-
-<body ng-include="isLoggedIn && '/html/index.html' || '/html/login.html'">
-
     <script src="js/lib/angular-animate.min.js"></script>
     <script src="js/lib/angular-route.min.js"></script>
     <script src="js/lib/angular-sanitize.min.js"></script>
@@ -37,6 +33,13 @@
     <script src="js/lib/angular-animate.min.js"></script>
     <script src="js/lib/angular-aria.min.js"></script>
     <script src="js/app.js"></script>
-</body>
+
+    <script src="js/lib/socket.io-client/socket.io.js"></script>
+    <script>
+
+    </script>
+</head>
+
+<body ng-include="isLoggedIn && '/html/index.html' || '/html/login.html'"></body>
 
 </html>

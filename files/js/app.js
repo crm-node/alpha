@@ -97,7 +97,11 @@ app.run(['$rootScope', '$timeout', '$http','$cookies',
                     'Authorization': token
                 }
             }).success(callback);
-        }
+        };
+        $rootScope.socket = io.connect('http://localhost:999');
+        $rootScope.socket.on('connect', function(data) {
+            console.log(data);
+        });
     }
 ]);
 
@@ -116,6 +120,9 @@ app.controller('mainController', ['$http', '$routeParams', '$scope', '$rootScope
                         console.log(data);
                         $rootScope.isLoggedIn = true;
                         $rootScope.userInfo = data.data;
+                        $rootScope.socket.on('upcoming event', function (data) {
+                            alert(data);
+                        });
                     }
                     else {
                         $rootScope.isLoggedIn = false;
@@ -526,6 +533,18 @@ app.controller("calendarCtrl", ['$scope', '$rootScope', '$filter', '$q', '$timeo
             });
         };
 
+        $scope.getUpcomingEvents = function() {
+            $rootScope.httpRequest("getUpcomingEvents", 'POST', {}, function (data) {
+                if(!data.error && data.data) {
+                    $scope.eventList = data.data;
+                }
+                else {
+                    $scope.error = data.error;
+                    $scope.message = data.message;
+                }
+            });
+        };
+        
         $scope.addEvent = function() {
             if($scope.eventAddForm.$valid) {
                 $rootScope.httpRequest("addEvent", 'POST', {event : $scope.eventToAdd}, function (data) {

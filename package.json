@@ -1,6 +1,40 @@
 {
-  "name": "crm-node",
+  "name": "alpha_crm_with_node_and_redis",
   "version": "0.0.1",
-  "devDependencies": {
-  }
+  "devDependencies": {},
+  "scripts": {
+    "start": "node server.js"
+  },
+  "description": "Alpha version of Node + Angular CRM",
+  "main": "server.js",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "deep-diff": "^0.3.4",
+    "ejs": "^2.5.1",
+    "diff": "^2.2.3",
+    "express": "^4.14.0",
+    "knex": "^0.11.9",
+    "node-xml-compare": "^0.1.0",
+    "mysql": "^2.11.1",
+    "redis": "^2.6.2",
+    "request": "^2.74.0",
+    "underscore": "^1.8.3",
+    "xml2js": "^0.4.17"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/crm-node/alpha.git"
+  },
+  "keywords": [
+    "crm",
+    "node",
+    "redis",
+    "socket.io"
+  ],
+  "author": "Mark Sarukhanov & Eduard Simonian",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/crm-node/alpha/issues"
+  },
+  "homepage": "https://github.com/crm-node/alpha#readme"
 }

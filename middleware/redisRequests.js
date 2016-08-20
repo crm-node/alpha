@@ -179,24 +179,24 @@ module.exports = {
         }
     },
 
-    upcomingEvents : function (customer_id, what, data, callback) {
+    upcomingEvent : function (customer_id, what, data, callback) {
         var date;
         if(data && data.date) date = "" + new Date(data.date).getDay() + "-" + new Date(data.date).getMonth() + "-" + new Date(data.date).getFullYear();
         switch (what) {
             case 'add':
-                client.hset('upcomingEvents:', "" + customer_id + ':date:' + date, JSON.stringify(data.upcomingEvents), callback);
+                client.hset('customer:' + customer_id +':upcomingEvents:', "" + uuid.v4(), JSON.stringify(data.upcomingEvent), callback);
                 break;
             case 'edit':
-                client.hset('upcomingEvents:', "" + customer_id + ':date:' + date, JSON.stringify(data.upcomingEvents), callback);
+                client.hset('customer:' + customer_id +':upcomingEvents:', data.id, JSON.stringify(data.upcomingEvent), callback);
                 break;
             case 'all':
-                client.hgetall('upcomingEvents:', "" + customer_id + ':date:', callback);
+                client.hgetall('customer:' + customer_id +':upcomingEvents:', callback);
                 break;
             case 'get':
-                client.hget('upcomingEvents:', "" + customer_id + ':date:', date, callback);
+                client.hget('customer:' + customer_id +':upcomingEvents:', data.id, callback);
                 break;
             case 'del':
-                client.hdel('upcomingEvents:', "" + customer_id + ':date:', date, callback);
+                client.hdel('customer:' + customer_id +':upcomingEvents:', data.id, callback);
                 break;
         }
     }

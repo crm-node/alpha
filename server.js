@@ -7,6 +7,7 @@ var fs = require('fs');
 var app = express();
 var http = require('http');
 var bodyParser = require('body-parser');
+
 global._ = require('underscore');
 global.request = require('request');
 
@@ -22,8 +23,9 @@ client.auth('dontfuckwithmyteam', function (err) {
 client.on('connect', function() {
     console.log('Connected to Redis');
 });
-
-client.on("error", function (err) {console.error("Error " + err);});
+client.on("error", function (err) {
+    console.error("Error " + err);
+});
 
 app.use(express.static('' + __dirname + '/files'));
 app.set('views',[''+__dirname + '/files/html', ''+__dirname + '/files/html/botView/']);
@@ -33,26 +35,57 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use('/favicon.ico', express.static('./files/img/favicon.ico'));
 app.set('json spaces', 2);
 
-require('./middleware/routes.js')(app, client);
 global.serverEvents = require('./middleware/serverEvents.js');
 serverEvents.init();
 
-console.time("dbsave");
-var in5sec = serverEvents.atFixedTime(500, function () {
-    console.timeEnd("dbsave");
-});
-in5sec();
-var in5sec = serverEvents.atFixedTime(2, function () {
-    console.timeEnd("dbsave");
-});
-
-serverEvents.everyFixedTime("2999-12-31T01:27:00.000Z", function(time){
-    console.log(time)
+// var server1 = http.createServer(app);
+// var server = app.listen(port || 999, function() {
+//     console.log("listening on " + port);
+// });
+var server = require('http').createServer(app);
+server.listen(port || 999, function() {
+    console.log("Server listening on " + port);
 });
 
-var server = app.listen(port || 999, function() {
-    console.log("listening on " + port);
+require('./middleware/routes.js')(app, client);
+
+
+global.io = require('socket.io')(server);
+
+io.on("connect", function(data){
+    console.log("Socket.io connected");
 });
+io.on("error", function(data){
+    console.log("Socket.io error");
+});
+
+io.on('connection', function(client) {
+    console.log('Client connected : ');
+    client.on('join', function(data) {
+        console.log(data);
+    });
+});
+
+// serverEvents.atFixedTime(2, function () {
+//     io.emit('upcoming event', new Date());
+// });
+
+// console.time("dbsave");
+// var in5sec = serverEvents.atFixedTime(500, function () {
+//     console.timeEnd("dbsave");
+// });
+// in5sec();
+// var in5sec = serverEvents.atFixedTime(2, function () {
+//     console.timeEnd("dbsave");
+// });
+//
+// serverEvents.everyFixedTime(13, 55, 'day', function(time){
+//     console.log(time)
+// });
+
+
+
+
 
 
 //var redis = require('redis');
