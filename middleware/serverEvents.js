@@ -43,12 +43,12 @@ module.exports = {
                         break;
                     case 'day' :
                     default :
-                        func();
                         setInterval(function () {
                             func();
                         }, 86400000);
                         break;
                 }
+                func();
             }, wait);
         }
     },
@@ -79,53 +79,54 @@ module.exports = {
         // this.everyFixedTime(1, 0, 'day', function(){
         //     console.log("Every DAY")
         // });
+        var _this = this;
         redisRequests.customer('', 'all', '', function (err, customers) {
             if(err) {
                 res.send({error: true, message: 'Events request error', error_code: 'cli_1'}).end();
             }
             else {
+                _this.everyFixedTime(1, 0, 'month', function(){
+                    var _uE = [
+                        {
+                            clientname: "Ashotik",
+                            description: "d111111",
+                            dt: "2016-08-19T07:03:00.000Z",
+                            id: uuid.v4()
+                        },
+                        {
+                            clientname: "Valera",
+                            description: "VVVVVVVVVVV",
+                            dt: "2016-08-19T07:03:00.000Z",
+                            id: uuid.v4()
+                        },
+                        {
+                            clientname: "Maratik",
+                            description: "MMMMMMM",
+                            dt: "2016-08-19T07:03:00.000Z",
+                            id: uuid.v4()
+                        },
+                        {
+                            clientname: "Lyosh",
+                            description: "LLLLLLL",
+                            dt: "2016-08-19T07:03:00.000Z",
+                            id: uuid.v4()
+                        }
+                    ];
 
-                var _uE = [
-                    {
-                        clientname: "Ashotik",
-                        description: "d111111",
-                        dt: "2016-08-19T07:03:00.000Z",
-                        id: uuid.v4()
-                    },
-                    {
-                        clientname: "Valera",
-                        description: "VVVVVVVVVVV",
-                        dt: "2016-08-19T07:03:00.000Z",
-                        id: uuid.v4()
-                    },
-                    {
-                        clientname: "Maratik",
-                        description: "MMMMMMM",
-                        dt: "2016-08-19T07:03:00.000Z",
-                        id: uuid.v4()
-                    },
-                    {
-                        clientname: "Lyosh",
-                        description: "LLLLLLL",
-                        dt: "2016-08-19T07:03:00.000Z",
-                        id: uuid.v4()
-                    }
-                ];
-
-
-
-                _.each(customers, function(customer, keyC){
-                    customers[keyC] = JSON.parse(customer);
-                    customers[keyC].id = keyC;
-                    var multiR = client.multi();
-                    _.each(_uE, function(event, keyE){
-                        multiR.hmset('customer:' + keyC + ':upcomingEvents:', event.id, JSON.stringify(event));
-                    });
-                    multiR.exec(function (err, res) {
-                        if(err) console.error(err);
-                        else console.log(res);
+                    _.each(customers, function(customer, keyC){
+                        customers[keyC] = JSON.parse(customer);
+                        customers[keyC].id = keyC;
+                        var multiR = client.multi();
+                        _.each(_uE, function(event, keyE){
+                            multiR.hmset('customer:' + keyC + ':upcomingEvents:', event.id, JSON.stringify(event));
+                        });
+                        multiR.exec(function (err, res) {
+                            if(err) console.error(err);
+                            else console.log(res);
+                        });
                     });
                 });
+                
 
 
             }
