@@ -49,7 +49,6 @@ server.listen(port || 999, function() {
 
 require('./middleware/routes.js')(app, client);
 
-
 global.io = require('socket.io')(server);
 
 io.on("connect", function(data){

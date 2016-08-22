@@ -10,7 +10,6 @@ module.exports = {
     init : function() {
         //console.log(this);
         this.updateUpcomingEventsEveryDay();
-        this.setUpcomingEventsEveryDay();
         this.archiveEventsEveryMonth();
         this.archiveTransactionsEveryMonth();
     },
@@ -36,6 +35,7 @@ module.exports = {
                         }
                         function monthLoop() {
                             var nextExecutionTime = daysInMonth() * 86400000;
+                            console.log(nextExecutionTime);
                             func();
                             setTimeout(monthLoop, nextExecutionTime);
                         }
@@ -76,69 +76,49 @@ module.exports = {
     },
 
     updateUpcomingEventsEveryDay : function() {
-        // this.everyFixedTime(1, 0, 'day', function(){
-        //     console.log("Every DAY")
-        // });
         var _this = this;
         redisRequests.customer('', 'all', '', function (err, customers) {
             if(err) {
                 res.send({error: true, message: 'Events request error', error_code: 'cli_1'}).end();
             }
             else {
-                _this.everyFixedTime(1, 0, 'month', function(){
-                    var _uE = [
-                        {
-                            clientname: "Ashotik",
-                            description: "d111111",
-                            dt: "2016-08-19T07:03:00.000Z",
-                            id: uuid.v4()
-                        },
-                        {
-                            clientname: "Valera",
-                            description: "VVVVVVVVVVV",
-                            dt: "2016-08-19T07:03:00.000Z",
-                            id: uuid.v4()
-                        },
-                        {
-                            clientname: "Maratik",
-                            description: "MMMMMMM",
-                            dt: "2016-08-19T07:03:00.000Z",
-                            id: uuid.v4()
-                        },
-                        {
-                            clientname: "Lyosh",
-                            description: "LLLLLLL",
-                            dt: "2016-08-19T07:03:00.000Z",
-                            id: uuid.v4()
-                        }
-                    ];
-
+                _this.everyFixedTime(13, 7, 'day', function(){
                     _.each(customers, function(customer, keyC){
-                        customers[keyC] = JSON.parse(customer);
-                        customers[keyC].id = keyC;
-                        var multiR = client.multi();
-                        _.each(_uE, function(event, keyE){
-                            multiR.hmset('customer:' + keyC + ':upcomingEvents:', event.id, JSON.stringify(event));
-                        });
-                        multiR.exec(function (err, res) {
-                            if(err) console.error(err);
-                            else console.log(res);
-                        });
+                        _this.updateUpcomingEventsForCustomer(keyC);
                     });
                 });
-                
-
-
             }
         });
     },
 
-    updateUpcomingEvents : function() {
-        
-    },
-
-    setUpcomingEventsEveryDay : function() {
-        
+    updateUpcomingEventsForCustomer : function (customer_id, callback) {
+        var _this = this;
+        var today = new Date();
+        var date = "" + today.getDate() + "-" + (today.getMonth() + 1) + "-" + today.getFullYear();
+        client.hget('customer:' + customer_id +':event:', date, function(err, todayEvents){
+            todayEvents = JSON.parse(todayEvents);
+            client.del('customer:' + customer_id +':upcomingEvents:', function(err, res){
+                var multiR = client.multi();
+                var upcoming = {};
+                _.each(todayEvents, function(event){
+                    var now = new Date(), eventTime = new Date(event.dt);
+                    var secondsDelay = (eventTime.getTime() -  now.getTime()) / 1000;
+                    if(secondsDelay > 0) {
+                        upcoming["" + event.id] = _this.atFixedTime(secondsDelay, function () {
+                            io.emit('upcoming event' + customer_id, event);
+                        });
+                    }
+                    multiR.hmset('customer:' + customer_id + ':upcomingEvents:', event.id, JSON.stringify(event));
+                });
+                multiR.exec(function (err, res) {
+                    if(err) console.error(err);
+                    else {
+                        console.log(res);
+                        if(callback) callback();
+                    }
+                });
+            });
+        });
     },
 
     archiveEventsEveryMonth : function() {

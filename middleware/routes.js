@@ -4,6 +4,7 @@
 
 //var dbRequest = require('./dbRequests');
 var redisRequests = require('./redisRequests');
+var serverEvents = require('./serverEvents');
 var util = require('util');
 var uuid = require('node-uuid');
 
@@ -484,7 +485,9 @@ module.exports = function (app, fs) {
                 }
                 else {
                     userData = JSON.parse(userData);
-                    var date = "" + new Date(req.body.event.dt).getDay() + "-" + new Date(req.body.event.dt).getMonth() + "-" + new Date(req.body.event.dt).getFullYear();
+                    var event_day = new Date(req.body.event.dt);
+                    var date = "" + event_day.getDate() + "-" + (event_day.getMonth() + 1) + "-" + event_day.getFullYear();
+
                     if(userData && req.body.event) {
                         redisRequests.events(userData.customer, 'get', date, {}, function (err, eventsData) {
                             if(err) {
@@ -503,11 +506,13 @@ module.exports = function (app, fs) {
                                         res.send({error: true, message: 'Events request error', error_code: 'cli_1'}).end();
                                     }
                                     else {
-                                        res.send({
-                                            error: false,
-                                            message: 'Success',
-                                            data: JSON.parse(eventData)
-                                        }).end();
+                                        serverEvents.updateUpcomingEventsForCustomer(userData.customer, function(){
+                                            res.send({
+                                                error: false,
+                                                message: 'Success',
+                                                data: JSON.parse(eventData)
+                                            }).end();
+                                        });
                                     }
                                 })
                             }
@@ -530,7 +535,9 @@ module.exports = function (app, fs) {
                 }
                 else {
                     userData = JSON.parse(userData);
-                    var date = "" + new Date(req.body.event.dt).getDay() + "-" + new Date(req.body.event.dt).getMonth() + "-" + new Date(req.body.event.dt).getFullYear();
+                    var event_day = new Date(req.body.event.dt);
+                    var date = "" + event_day.getDate() + "-" + (event_day.getMonth() + 1) + "-" + event_day.getFullYear();
+                    console.log(date);
                     if(userData && req.body.event) {
                         redisRequests.events(userData.customer, 'get', date, {}, function (err, eventsData) {
                             if(err) {
@@ -546,11 +553,13 @@ module.exports = function (app, fs) {
                                         res.send({error: true, message: 'Events request error', error_code: 'cli_1'}).end();
                                     }
                                     else {
-                                        res.send({
-                                            error: false,
-                                            message: 'Success',
-                                            data: JSON.parse(eventData)
-                                        }).end();
+                                        serverEvents.updateUpcomingEventsForCustomer(userData.customer, function(){
+                                            res.send({
+                                                error: false,
+                                                message: 'Success',
+                                                data: JSON.parse(eventData)
+                                            }).end();
+                                        });
                                     }
                                 })
                             }
@@ -573,7 +582,9 @@ module.exports = function (app, fs) {
                 }
                 else {
                     userData = JSON.parse(userData);
-                    var date = "" + new Date(req.body.event.dt).getDay() + "-" + new Date(req.body.event.dt).getMonth() + "-" + new Date(req.body.event.dt).getFullYear();
+                    var event_day = new Date(req.body.event.dt);
+                    var date = "" + event_day.getDate() + "-" + (event_day.getMonth() + 1) + "-" + event_day.getFullYear();
+
                     if(userData && req.body.event) {
                         redisRequests.events(userData.customer, 'get', date, {}, function (err, eventsData) {
                             if(err) {
@@ -590,11 +601,13 @@ module.exports = function (app, fs) {
                                         res.send({error: true, message: 'Events request error', error_code: 'cli_1'}).end();
                                     }
                                     else {
-                                        res.send({
-                                            error: false,
-                                            message: 'Success',
-                                            data: JSON.parse(eventData)
-                                        }).end();
+                                        serverEvents.updateUpcomingEventsForCustomer(userData.customer, function(){
+                                            res.send({
+                                                error: false,
+                                                message: 'Success',
+                                                data: JSON.parse(eventData)
+                                            }).end();
+                                        });
                                     }
                                 })
                             }
@@ -617,17 +630,21 @@ module.exports = function (app, fs) {
                 }
                 else {
                     userData = JSON.parse(userData);
-                    var date = "" + new Date(req.body.event.dt).getDay() + "-" + new Date(req.body.event.dt).getMonth() + "-" + new Date(req.body.event.dt).getFullYear();
+                    var event_day = new Date(req.body.event.dt);
+                    var date = "" + event_day.getDate() + "-" + (event_day.getMonth() + 1) + "-" + event_day.getFullYear();
+
                     redisRequests.events(userData.customer, 'del', date, {}, function (err, eventData) {
                         if(err) {
                             res.send({error: true, message: 'Events request error', error_code: 'cli_1'}).end();
                         }
                         else {
-                            res.send({
-                                error: false,
-                                message: 'Success',
-                                data: JSON.parse(eventData)
-                            }).end();
+                            serverEvents.updateUpcomingEventsForCustomer(userData.customer, function(){
+                                res.send({
+                                    error: false,
+                                    message: 'Success',
+                                    data: JSON.parse(eventData)
+                                }).end();
+                            });
                         }
                     })
                 }
@@ -959,38 +976,20 @@ module.exports = function (app, fs) {
                                 upcomingEvents[key] = JSON.parse(upcomingEvent);
                                 upcomingEvents[key].id = key;
                             });
-                            res.send({
-                                error: false,
-                                message: 'Success',
-                                data: upcomingEvents
-                            }).end();
+                            serverEvents.updateUpcomingEventsForCustomer(userData.customer, function(){
+                                res.send({
+                                    error: false,
+                                    message: 'Success',
+                                    data: upcomingEvents
+                                }).end();
+                            });
+                            // res.send({
+                            //     error: false,
+                            //     message: 'Success',
+                            //     data: upcomingEvents
+                            // }).end();
                         }
                     });
-                    // redisRequests.upcomingEvent(upcomingEventData.customer, 'all', {}, function (err, upcomingEvents) {
-                    //     if(err) {
-                    //         console.log(err);
-                    //     }
-                    //     else {
-                    //         _.each(upcomingEvents, function(upcomingEvent, key){
-                    //             upcomingEvents[key] = JSON.parse(upcomingEvent);
-                    //             upcomingEvents[key].id = key;
-                    //         });
-                    //         upcomingEvents = _.filter(upcomingEvents, function(upcomingEvent){ return upcomingEvent.customer  == upcomingEventData.customer; });
-                    //         var idS = _.pluck(upcomingEvents, "id");
-                    //         _.each(idS, function(item, k){idS[k] = "token:"+item});
-                    //         client.mget(idS, function (err, keys) {
-                    //             _.each(keys, function(key, k){keys[k] = JSON.parse(key);});
-                    //             _.each(upcomingEvents, function(upcomingEvent, keyU){
-                    //                 upcomingEvents[keyU].status = _.findWhere(keys, {id: upcomingEvent.id}) ? 1 : 0;
-                    //             });
-                    //             res.send({
-                    //                 error: false,
-                    //                 message: 'Success',
-                    //                 data: upcomingEvents
-                    //             }).end();
-                    //         });
-                    //     }
-                    // });
                 }
             });
         }

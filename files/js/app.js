@@ -112,6 +112,7 @@ app.controller('mainController', ['$http', '$routeParams', '$scope', '$rootScope
         $scope.login = {};
 
         var token = $cookies.get('token');
+        $rootScope.upcomingEvent = {};
 
         function getUserInfo(token) {
             if (token) {
@@ -120,8 +121,10 @@ app.controller('mainController', ['$http', '$routeParams', '$scope', '$rootScope
                         console.log(data);
                         $rootScope.isLoggedIn = true;
                         $rootScope.userInfo = data.data;
-                        $rootScope.socket.on('upcoming event', function (data) {
-                            alert(data);
+                        $rootScope.socket.on('upcoming event' + $rootScope.userInfo.customer, function (event) {
+                            $rootScope.upcomingEvent = event;
+                            console.log($rootScope.upcomingEvent);
+                            $('#upcomingEventModal').modal('show');
                         });
                     }
                     else {
