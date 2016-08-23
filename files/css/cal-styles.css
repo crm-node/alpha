@@ -1,7 +1,7 @@
 #calendar {
   width: 90%;
   margin: 0 auto;
-  padding-top: 80px;
+  /*padding-top: 80px;*/
 }
 #calendar .fc-bg td:hover {
   cursor: pointer;

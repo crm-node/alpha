@@ -63,3 +63,24 @@ body {
 .fc-toolbar button {
     color : #000000
 }
+
+.event-in-day {
+    margin-bottom: 10px;
+    display: block;
+    width: 100%;
+    float: left;
+}
+
+.event-in-day-client {
+    font-weight: bold;
+}
+
+.event-in-day-client, .event-in-day-descr {
+    width: 100%;
+    display: block;
+}
+
+.event-in-day-title , .event-in-day-time {
+    width: 50%;
+    float: left;
+}

@@ -456,8 +456,9 @@ module.exports = function (app, fs) {
                 }
                 else {
                     userData = JSON.parse(userData);
-                    var date = "" + new Date(req.body.dt).getDay() + "-" + new Date(req.body.dt).getMonth() + "-" + new Date(req.body.dt).getFullYear();
-                    redisRequests.events(userData.customer, 'get', date, {}, function (err, cliensData) {
+                    var date = "" + new Date(req.body.dt).getDate() + "-" + (new Date(req.body.dt).getMonth() + 1) + "-" + new Date(req.body.dt).getFullYear();
+                    console.log(date);
+                    redisRequests.events(userData.customer, 'get', date, {}, function (err, clientsData) {
                         if(err) {
                             res.send({error: true, message: 'Events request error', error_code: 'cli_1'}).end();
                         }
@@ -465,7 +466,7 @@ module.exports = function (app, fs) {
                             res.send({
                                 error: false,
                                 message: 'Success',
-                                data: JSON.parse(cliensData)
+                                data: JSON.parse(clientsData)
                             }).end();
                         }
                     })
@@ -537,7 +538,7 @@ module.exports = function (app, fs) {
                     userData = JSON.parse(userData);
                     var event_day = new Date(req.body.event.dt);
                     var date = "" + event_day.getDate() + "-" + (event_day.getMonth() + 1) + "-" + event_day.getFullYear();
-                    console.log(date);
+
                     if(userData && req.body.event) {
                         redisRequests.events(userData.customer, 'get', date, {}, function (err, eventsData) {
                             if(err) {
@@ -553,6 +554,7 @@ module.exports = function (app, fs) {
                                         res.send({error: true, message: 'Events request error', error_code: 'cli_1'}).end();
                                     }
                                     else {
+                                        io.emit('event added' + userData.customer, req.body.event);
                                         serverEvents.updateUpcomingEventsForCustomer(userData.customer, function(){
                                             res.send({
                                                 error: false,

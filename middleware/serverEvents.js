@@ -35,20 +35,30 @@ module.exports = {
                         }
                         function monthLoop() {
                             var nextExecutionTime = daysInMonth() * 86400000;
-                            console.log(nextExecutionTime);
                             func();
-                            setTimeout(monthLoop, nextExecutionTime);
+                            if(nextExecutionTime > 2147483647) {
+                                setTimeout(function(){
+                                    setTimeout(function(){
+                                        monthLoop()
+                                    }, 2147483647);
+                                }, nextExecutionTime - 2147483647);
+                            }
+                            else {
+                                setTimeout(function(){
+                                    monthLoop()
+                                }, nextExecutionTime);
+                            }
                         }
                         monthLoop();
                         break;
                     case 'day' :
                     default :
+                        func();
                         setInterval(function () {
                             func();
                         }, 86400000);
                         break;
                 }
-                func();
             }, wait);
         }
     },
