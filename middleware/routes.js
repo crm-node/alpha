@@ -765,6 +765,8 @@ module.exports = function (app, fs) {
                 }
                 else {
                     userData = JSON.parse(userData);
+                    var event_day = new Date(req.body.transaction_info.dt);
+                    var date = "" + event_day.getDate() + "-" + (event_day.getMonth() + 1) + "-" + event_day.getFullYear();
                     redisRequests.transactions(userData.customer, 'edit', {transaction_id : req.body.transaction_id, transaction_info : req.body.transaction_info}, function (err, cliensData) {
                         if(err) {
                             res.send({error: true, message: 'Transactions request error', error_code: 'cli_1'}).end();
@@ -794,16 +796,28 @@ module.exports = function (app, fs) {
                 else {
                     userData = JSON.parse(userData);
                     if(userData && req.body.transaction_info) {
+                        req.body.transaction_info.dt = new Date();
+                        req.body.transaction_info.id = "" + uuid.v4();
+                        var event_day = new Date(req.body.transaction_info.dt);
+                        var date = "" + event_day.getDate() + "-" + (event_day.getMonth() + 1) + "-" + event_day.getFullYear();
                         redisRequests.transactions(userData.customer, 'add', {transaction_info : req.body.transaction_info}, function (err, cliensData) {
                             if(err) {
                                 res.send({error: true, message: 'Transactions request error', error_code: 'cli_1'}).end();
                             }
                             else {
-                                res.send({
-                                    error: false,
-                                    message: 'Success',
-                                    data: JSON.parse(cliensData)
-                                }).end();
+                                client.hget('customer:' + userData.customer + ':transactions:'  ,  "" + date, function(err, transactions){
+                                    if( typeof transactions == 'string' && transactions.indexOf("null") > -1) transactions = [];
+                                    if(transactions != null) transactions = JSON.parse(transactions);
+                                    else transactions = [];
+                                    transactions.push(req.body.transaction_info);
+                                    client.hset('customer:' + userData.customer + ':transactions:'  ,  "" + date, JSON.stringify(transactions), function(err, data){
+                                        res.send({
+                                            error: false,
+                                            message: 'Success',
+                                            data: JSON.parse(cliensData)
+                                        }).end();
+                                    });
+                                });
                             }
                         })
                     }
@@ -1004,6 +1018,33 @@ module.exports = function (app, fs) {
         }
     });
 
+    app.post('/api/getTransactionsByDate', function (req, res) {
+        if (req.headers.authorization == undefined) {
+            res.send({error: true, message: 'Authorizatioin token required', error_code: 'auth_1'}).end();
+        }
+        else {
+            redisRequests.getUser(req.headers.authorization, function (err, userData) {
+                if(err || !userData) {
+                    res.send({error: true, message: "UpcomingEvent doesn't exist", error_code: 'auth_1'}).end();
+                }
+                else {
+                    userData = JSON.parse(userData);
+                    var event_day = new Date(req.body.dt);
+                    var date = "" + event_day.getDate() + "-" + (event_day.getMonth() + 1) + "-" + event_day.getFullYear();
+                    client.hget('customer:' + userData.customer + ':transactions:'  ,  "" + date, function(err, transactions){
+                        if(err) console.error(err)
+                        console.log(transactions, typeof transactions);
+                        res.send({
+                            error: false,
+                            message: 'Success',
+                            data: transactions
+                        }).end();
+                    });
+                }
+            });
+        }
+    });
+
     app.post('/api/getStatistics', function (req, res){
         if (req.headers.authorization == undefined) {
             res.send({error: true, message: 'Authorizatioin token required', error_code: 'auth_1'}).end();
@@ -1019,7 +1060,7 @@ module.exports = function (app, fs) {
                     var _month = Number(req.body.month) + 1, _year = Number(req.body.year), daysArray = [], months = ['January', 'February', 'March', 'April', 'May', 'June',  'July', 'August', 'September', 'October', 'November', 'December'];;
                     var _days = daysInMonth(new Date(new Date().getFullYear(), Number(req.body.month), new Date().getDate(), 0, 0, 0));
                     for(var i=1;i<=_days;i++) { daysArray.push(""+i+"-"+_month+"-"+_year) }
-                    var statistics = {monthName : months[Number(req.body.month)]};
+                    var statistics = {monthName : months[Number(req.body.month)], year : _year};
                     client.hmget('customer:' + userData.customer + ':event:', daysArray, function(err, events){
                         if(err) console.error(err);
                         events = _.groupBy(events, function(arr, day){ return day + 1 });
@@ -1032,13 +1073,54 @@ module.exports = function (app, fs) {
                         statistics.events = {
                             numByDay : _.map(events, function(byDay, key){return byDay.length})
                         };
+                        statistics.events.dayReport = {};
+                        statistics.events.doctors = [];
+                        events = _.each(events, function(arr, day){
+                            statistics.events.dayReport[""+day] = {};
+                            _.each(arr, function(item, key){
+                                if(item.doctorname) {
+                                    if(statistics.events.doctors.indexOf(""+item.doctorname) == -1) statistics.events.doctors.push(item.doctorname);
+                                    if(!statistics.events.dayReport[""+day][""+item.doctorname]) statistics.events.dayReport[""+day][""+item.doctorname] = 1;
+                                    else statistics.events.dayReport[""+day][""+item.doctorname]++;
+                                }
+                            });
+                        });
+                        client.hmget('customer:' + userData.customer + ':transactions:', daysArray, function(err, transactions){
 
-                        console.log(statistics);
-                        res.send({
-                            error: false,
-                            message: 'Success',
-                            data: statistics
-                        }).end();
+                            if(err) console.error(err);
+                            transactions = _.groupBy(transactions, function(arr, day){ return day + 1 });
+                            transactions = _.each(transactions, function(arr, day){
+                                if(arr.length == 1 && arr[0] == null) {
+                                    transactions[day] = [];
+                                }
+                                else transactions[day] = JSON.parse(arr);
+                            });
+                            var inputs = {}, outputs = {};
+                            statistics.transactions = {
+                                dayReport : {}
+                            };
+                            _.each(transactions, function(arr, day){
+                                statistics.transactions.dayReport[""+day] = {};
+                                statistics.transactions.dayReport[""+day].total = 0;
+                                statistics.transactions.dayReport[""+day].inputs = [];
+                                statistics.transactions.dayReport[""+day].outputs = [];
+                                _.each(arr, function(item, key){
+                                    statistics.transactions.dayReport[""+day].total += item.amount;
+                                    if(Number(item.amount) > 0) statistics.transactions.dayReport[""+day].inputs.push(item);
+                                    if(Number(item.amount) < 0) statistics.transactions.dayReport[""+day].outputs.push(item);
+                                });
+                                statistics.transactions.dayReport[""+day].total_input = _.reduce(statistics.transactions.dayReport[""+day].inputs, function(memo, item){ return memo + item.amount; }, 0);
+                                statistics.transactions.dayReport[""+day].total_output = _.reduce(statistics.transactions.dayReport[""+day].outputs, function(memo, item){ return memo + item.amount; }, 0);
+
+                            });
+                            //console.log(transactions);
+                            //console.log(statistics);
+                            res.send({
+                                error: false,
+                                message: 'Success',
+                                data: statistics
+                            }).end();
+                        });
                     });
                 }
             })

@@ -35,6 +35,10 @@ app.config(['$routeProvider', '$locationProvider', '$httpProvider',
             //    templateUrl: '/html/home.html',
             //    controller: 'homeController'
             //})
+            .when("/customers", {
+                templateUrl: '/html/customers.html',
+                controller: 'customersController'
+            })
             .when("/archive", {
                 templateUrl: '/html/archive.html',
                 controller: 'archiveController'
@@ -43,6 +47,7 @@ app.config(['$routeProvider', '$locationProvider', '$httpProvider',
                 templateUrl: '/html/statistics.html',
                 controller: 'statisticsController'
             })
+            .otherwise({ redirectTo: '/' });
         ;
         $httpProvider.interceptors.push(['$q', '$location', '$cookies', '$rootScope', function($q, $location, $cookies, $rootScope) {
             return {
@@ -449,6 +454,85 @@ app.controller('usersController', ['$http', '$scope', '$rootScope',
     }
 ]);
 
+app.controller('customersController', ['$http', '$scope', '$rootScope',
+    function($http, $scope, $rootScope) {
+
+        $scope.customerToAdd = {};
+        $scope.customerList = [];
+        $scope.customerToEdit = {};
+        $scope.customerToDelete = '';
+
+        $scope.getCustomers = function() {
+            $rootScope.httpRequest("getCustomers", 'POST', {}, function (data) {
+                if(!data.error && data.data) {
+                    $scope.customerList = data.data;
+                }
+                else {
+                    $scope.error = data.error;
+                    $scope.message = data.message;
+                }
+            });
+        };
+
+        $scope.addCustomer = function() {
+            if($scope.customerAddForm.$valid) {
+                $scope.customerToAdd.customer = $rootScope.customerInfo.customer;
+                $rootScope.httpRequest("addCustomer", 'POST', {customer_info : $scope.customerToAdd}, function (data) {
+                    if(!data.error) {
+                        $scope.customerToAdd = {};
+                        $scope.getCustomers();
+                        $('#addCustomerModal').modal('hide');
+                    }
+                    else {
+                        $scope.error = data.error;
+                        $scope.message = data.message;
+                    }
+                });
+            }
+        };
+
+        $scope.prepareEditCustomer = function(customer) {
+            $scope.customerToEdit = angular.copy(customer);
+        };
+        $scope.editCustomer = function() {
+            $rootScope.httpRequest("editCustomer", 'POST', {
+                customer_id : $scope.customerToEdit.id,
+                customer_info: $scope.customerToEdit
+            }, function (data) {
+                if(!data.error) {
+                    $scope.customerToEdit = {};
+                    $scope.getCustomers();
+                    $('#editCustomerModal').modal('hide');
+                }
+                else {
+                    $scope.error = data.error;
+                    $scope.message = data.message;
+                }
+            });
+        };
+
+        $scope.prepareDeleteCustomer = function(id, login) {
+            $scope.customerToDelete = {
+                customer_id : id,
+                login : login
+            };
+        };
+        $scope.deleteCustomer = function() {
+            $rootScope.httpRequest("delCustomer", 'POST', {customer_id : $scope.customerToDelete}, function (data) {
+                if(!data.error) {
+                    $scope.customerToDelete = '';
+                    $scope.getCustomers();
+                    $('#confirmDeleteCustomerModal').modal('hide');
+                }
+                else {
+                    $scope.error = data.error;
+                    $scope.message = data.message;
+                }
+            });
+        };
+    }
+]);
+
 app.controller("calendarCtrl", ['$http', '$scope', '$rootScope', '$filter', '$q', '$timeout', '$log', 'MaterialCalendarData', '$cookies', 'socket',
     function($http, $scope, $rootScope, $filter, $q, $timeout, $log, MaterialCalendarData, $cookies, socket) {
 
@@ -584,6 +668,32 @@ app.controller("calendarCtrl", ['$http', '$scope', '$rootScope', '$filter', '$q'
         $scope.eventToEdit = {};
         $scope.eventToDelete = '';
 
+        $scope.getClients = function() {
+            $rootScope.httpRequest("getClients", 'POST', {}, function (data) {
+                if(!data.error && data.data && data.data['schema']) {
+                    $scope.clientList = _.filter(data.data, function(item){ return item.id != 'schema'; });
+                }
+                else {
+                    $scope.error = data.error;
+                    $scope.message = data.message;
+                }
+            });
+        };
+        $scope.getClients();
+
+        $scope.getUsers = function() {
+            $rootScope.httpRequest("getUsers", 'POST', {}, function (data) {
+                if(!data.error && data.data) {
+                    $scope.doctorsList = data.data;
+                }
+                else {
+                    $scope.error = data.error;
+                    $scope.message = data.message;
+                }
+            });
+        };
+        $scope.getUsers();
+
         $scope.getEvents = function() {
             $rootScope.httpRequest("getAllEvents", 'POST', {
                 date : new Date()
@@ -625,7 +735,16 @@ app.controller("calendarCtrl", ['$http', '$scope', '$rootScope', '$filter', '$q'
         };
         $scope.addEvent = function() {
             if($scope.eventAddForm.$valid) {
-                $rootScope.httpRequest("addEvent", 'POST', {event : $scope.eventToAdd}, function (data) {
+                console.log($scope.eventToAdd);
+                var formData = {
+                    clientname : JSON.parse($scope.eventToAdd.client).FirstName + " " + JSON.parse($scope.eventToAdd.client).LastName,
+                    client_id : JSON.parse($scope.eventToAdd.client).id,
+                    description : $scope.eventToAdd.description,
+                    doctorname : JSON.parse($scope.eventToAdd.doctor).name,
+                    doctor_id : JSON.parse($scope.eventToAdd.doctor).id,
+                    dt : $scope.eventToAdd.dt
+                };
+                $rootScope.httpRequest("addEvent", 'POST', {event : formData}, function (data) {
                     if(!data.error) {
                         $rootScope.httpRequest("getEvents", 'POST', {
                             dt : $scope.eventToAdd.dt
@@ -729,13 +848,12 @@ app.controller('transactionsController', ['$http', '$scope', '$rootScope',
             });
         };
         $scope.getClients();
-        
+        $scope.changeSortType('dt');
         $scope.getTransactions = function() {
             $scope.transactionList = [];
             $rootScope.httpRequest("getTransactions", 'POST', {}, function (data) {
                 if(!data.error && data.data) {
                     $scope.transactionList = _.filter(data.data, function(item){ return item.id != 'schema'; });
-                    $scope.changeSortType('dt');
                 }
                 else {
                     $scope.error = data.error;
@@ -744,6 +862,19 @@ app.controller('transactionsController', ['$http', '$scope', '$rootScope',
             });
         };
 
+        $scope.getTransactionsByDate = function() {
+            $rootScope.httpRequest("getTransactionsByDate", 'POST', {
+                dt : new Date()
+            }, function (data) {
+                if(!data.error && data.data) {
+                }
+                else {
+                    $scope.error = data.error;
+                    $scope.message = data.message;
+                }
+            });
+        };
+        
         $scope.addTransaction = function(type) {
             if($scope.transactionAddForm.$valid) {
                 if($scope.transactionToAdd.type != 'Client paid') $scope.transactionToAdd.client = undefined;
@@ -917,27 +1048,44 @@ app.controller('statisticsController', ['$http', '$scope', '$rootScope',
     function($http, $scope, $rootScope) {
 
         $scope.stst = [];
-
-        $rootScope.httpRequest("getStatistics", 'POST', {
-            //type : 'transactions',
-            month : 7,
-            year : 2016
-        }, function (data) {
-            if(!data.error && data.data) {
-                console.log(data);
-                $scope.acDataEvents = {
-                    data: [{
-                        x: "Visits",
-                        y: data.data.events.numByDay,
-                        tooltip: "Visits this day."
-                    }]
-                };
+        var months = ['January', 'February', 'March', 'April', 'May', 'June',  'July', 'August', 'September', 'October', 'November', 'December']
+        $scope._now = {
+            month : new Date().getMonth(),
+            monthName : months[new Date().getMonth()],
+            year : new Date().getFullYear()
+        };
+        $scope.formDataEvent = {
+            month : new Date().getMonth(),
+            monthName : months[new Date().getMonth()],
+            year : new Date().getFullYear()
+        };
+        $scope.eventsMonth = function(type) {
+            switch (type) {
+                case 'prev':
+                    if ($scope.formDataEvent.month > 1) {
+                        $scope.formDataEvent.month--;
+                        $scope.formDataEvent.monthName = months[$scope.formDataEvent.month];
+                    }
+                    else {
+                        $scope.formDataEvent.month = 11;
+                        $scope.formDataEvent.monthName = months[$scope.formDataEvent.month];
+                        $scope.formDataEvent.year--;
+                    }
+                    break;
+                case 'next':
+                    if ($scope.formDataEvent.month < 11) {
+                        $scope.formDataEvent.month++;
+                        $scope.formDataEvent.monthName = months[$scope.formDataEvent.month];
+                    }
+                    else {
+                        $scope.formDataEvent.month = 0;
+                        $scope.formDataEvent.monthName = months[$scope.formDataEvent.month];
+                        $scope.formDataEvent.year++;
+                    }
+                    break;
             }
-            else {
-                $scope.error = data.error;
-                $scope.message = data.message;
-            }
-        });
+            $scope.getEventsStats($scope.formDataEvent.month, $scope.formDataEvent.year)
+        };
 
     }
 ]);
@@ -1151,9 +1299,8 @@ app.directive('chartsline', ['$cookies', function ($cookies) {
                     url: '/api/getStatistics',
                     type: 'POST',
                     data: {
-                        //type : 'transactions',
-                        month : month,
-                        year : years
+                        month : scope.formDataEvent.month,
+                        year : scope.formDataEvent.year
                     },
                     async: false,
                     headers: {
@@ -1196,13 +1343,173 @@ app.directive('chartsline', ['$cookies', function ($cookies) {
                                     verticalAlign: 'middle',
                                     borderWidth: 0
                                 },
+                                plotOptions: {
+                                    area: {
+                                        fillColor: {
+                                            linearGradient: {
+                                                x1: 0,
+                                                y1: 0,
+                                                x2: 0,
+                                                y2: 1
+                                            },
+                                            stops: [
+                                                [0, Highcharts.getOptions().colors[0]],
+                                                [1, Highcharts.Color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
+                                            ]
+                                        },
+                                        marker: {
+                                            radius: 2
+                                        },
+                                        lineWidth: 1,
+                                        states: {
+                                            hover: {
+                                                lineWidth: 1
+                                            }
+                                        },
+                                        threshold: null
+                                    }
+                                },
                                 series: [
                                     {
+                                        type: 'area',
                                         name: 'Events',
                                         data: scope.statistics.events.numByDay
                                     }
                                 ]
                             });
+                            $('#containerDoctors').highcharts({
+                                title: {
+                                    text: 'Clients By Doctor' ,
+                                    x: -20
+                                },
+                                subtitle: {
+                                    text: 'Month: ' + scope.statistics.monthName,
+                                    x: -20
+                                },
+                                xAxis: {
+                                    categories: _.map(scope.statistics.transactions.dayReport, function(ev, d){
+                                        return d;
+                                    })
+                                },
+                                yAxis: {
+                                    title: {
+                                        text: 'money'
+                                    },
+                                    plotLines: [{
+                                        value: 10,
+                                        width: 1,
+                                        color: '#000000'
+                                    }]
+                                },
+                                tooltip: {
+                                    valueSuffix: ' clients'
+                                },
+                                legend: {
+                                    layout: 'vertical',
+                                    align: 'right',
+                                    verticalAlign: 'middle',
+                                    borderWidth: 0
+                                },
+                                series: _.map(scope.statistics.events.doctors, function(doctor, key){
+                                    return {
+                                        name : doctor,
+                                        data: _.map(scope.statistics.events.dayReport, function(ev, d){
+                                            return ev[""+doctor] ? ev[""+doctor] : 0;
+                                        })
+                                    }
+                                })
+                            });
+                            $('#containerBalance').highcharts({
+                                title: {
+                                    text: 'Balance change statistics' ,
+                                    x: -20
+                                },
+                                subtitle: {
+                                    text: 'Month: ' + scope.statistics.monthName,
+                                    x: -20
+                                },
+                                xAxis: {
+                                    categories: _.map(scope.statistics.transactions.dayReport, function(ev, d){
+                                        return d;
+                                    })
+                                },
+                                yAxis: {
+                                    title: {
+                                        text: 'money'
+                                    },
+                                    plotLines: [{
+                                        value: 10,
+                                        width: 1,
+                                        color: '#000000'
+                                    }]
+                                },
+                                tooltip: {
+                                    valueSuffix: ''
+                                },
+                                legend: {
+                                    layout: 'vertical',
+                                    align: 'right',
+                                    verticalAlign: 'middle',
+                                    borderWidth: 0
+                                },
+                                series: [
+                                    {
+                                        name: 'Balance',
+                                        data: _.map(scope.statistics.transactions.dayReport, function(ev, d){
+                                            return ev.total;
+                                        })
+                                    }
+                                ]
+                            });
+                            $('#containerInputOutput').highcharts({
+                                title: {
+                                    text: 'Detailed input/output' ,
+                                    x: -20
+                                },
+                                subtitle: {
+                                    text: 'Month: ' + scope.statistics.monthName,
+                                    x: -20
+                                },
+                                xAxis: {
+                                    categories: _.map(scope.statistics.transactions.dayReport, function(ev, d){
+                                        return d;
+                                    })
+                                },
+                                yAxis: {
+                                    title: {
+                                        text: 'money'
+                                    },
+                                    plotLines: [{
+                                        value: 10,
+                                        width: 1,
+                                        color: '#000000'
+                                    }]
+                                },
+                                tooltip: {
+                                    valueSuffix: ''
+                                },
+                                legend: {
+                                    layout: 'vertical',
+                                    align: 'right',
+                                    verticalAlign: 'middle',
+                                    borderWidth: 0
+                                },
+                                series: [
+                                    {
+                                        name: 'Input',
+                                        data: _.map(scope.statistics.transactions.dayReport, function(ev, d){
+                                            return ev.total_input;
+                                        })
+                                    },
+                                    {
+                                        name: 'Output',
+                                        data: _.map(scope.statistics.transactions.dayReport, function(ev, d){
+                                            return ev.total_output;
+                                        })
+                                    }
+                                ]
+                            });
+                            $('.statistics').find('text').filter(':contains("Highcharts.com")').remove();
                         }
                         else {
                             scope.error = data.error;
@@ -1211,7 +1518,7 @@ app.directive('chartsline', ['$cookies', function ($cookies) {
                     }
                 });
             };
-            scope.getEventsStats(new Date().getMonth(), new Date().getFullYear())
+            scope.getEventsStats(scope.formDataEvent.month, scope.formDataEvent.year)
         }
     };
 }]);

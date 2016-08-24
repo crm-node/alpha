@@ -1,9 +1,44 @@
 <div id="home">
 
-    <div class="table-responsive">
+    <div class="table-responsive statistics">
 
-        <div class="col-sm-6">
-            <div chartsline id="containerEvents" style="min-width: 310px; height: 300px; margin: 0 auto"></div>
+        <ul class="pager col-sm-10 text-center">
+            <li class="col-sm-3 pull-left"><a ng-click="eventsMonth('prev')" href=""> << Prev</a></li>
+            <div class="col-sm-6 text-center"> {{formDataEvent.monthName}} / {{formDataEvent.year}} </div>
+            <li class="col-sm-3 pull-right" ng-if="formDataEvent.month < _now.month || formDataEvent.year < _now.year"><a ng-click="eventsMonth('next')" href="">Next >></a></li>
+        </ul>
+        <div class="col-sm-10 text-center">
+            <h4 class="modal-title">Clients Statistics</h4>
+        </div>
+        <div class="col-sm-10 text-center">
+
+            <div class="col-sm-6">
+
+                <div chartsline id="containerEvents" style="min-width: 310px; height: 300px; margin: 0 auto"></div>
+
+            </div>
+            <div class="col-sm-6">
+
+                <div chartsline id="containerDoctors" style="min-width: 310px; height: 300px; margin: 0 auto"></div>
+
+            </div>
+        </div>
+        <div class="col-sm-10 text-center">
+            <h4 class="modal-title">Transactions statistics</h4>
+        </div>
+        <div class="col-sm-10 text-center">
+
+            <div class="col-sm-6">
+
+                <div chartsline id="containerBalance" style="min-width: 310px; height: 300px; margin: 0 auto"></div>
+
+
+            </div>
+            <div class="col-sm-6">
+
+                <div chartsline id="containerInputOutput" style="min-width: 310px; height: 300px; margin: 0 auto"></div>
+
+            </div>
         </div>
 
     </div>
