@@ -9,6 +9,10 @@ var util = require('util');
 var uuid = require('node-uuid');
 
 
+function daysInMonth(now) {
+    return new Date(now.getFullYear(), now.getMonth(), 0).getDate();
+}
+
 Date.prototype.isLeapYear = function() {
     var year = this.getFullYear();
     if((year & 3) != 0) return false;
@@ -457,7 +461,6 @@ module.exports = function (app, fs) {
                 else {
                     userData = JSON.parse(userData);
                     var date = "" + new Date(req.body.dt).getDate() + "-" + (new Date(req.body.dt).getMonth() + 1) + "-" + new Date(req.body.dt).getFullYear();
-                    console.log(date);
                     redisRequests.events(userData.customer, 'get', date, {}, function (err, clientsData) {
                         if(err) {
                             res.send({error: true, message: 'Events request error', error_code: 'cli_1'}).end();
@@ -538,7 +541,6 @@ module.exports = function (app, fs) {
                     userData = JSON.parse(userData);
                     var event_day = new Date(req.body.event.dt);
                     var date = "" + event_day.getDate() + "-" + (event_day.getMonth() + 1) + "-" + event_day.getFullYear();
-
                     if(userData && req.body.event) {
                         redisRequests.events(userData.customer, 'get', date, {}, function (err, eventsData) {
                             if(err) {
@@ -555,6 +557,11 @@ module.exports = function (app, fs) {
                                     }
                                     else {
                                         io.emit('event added' + userData.customer, req.body.event);
+                                        var _now = new Date();
+                                        if(_now.getDate() == event_day.getDate() && _now.getMonth() == event_day.getMonth()
+                                            && _now.getFullYear() == event_day.getFullYear() && _now < event_day) {
+                                                io.emit('upcoming event added' + userData.customer, req.body.event);
+                                        }
                                         serverEvents.updateUpcomingEventsForCustomer(userData.customer, function(){
                                             res.send({
                                                 error: false,
@@ -897,7 +904,7 @@ module.exports = function (app, fs) {
                                 }
                             });
                             break;
-                        case 'visits':
+                        case 'events':
                             break;
                     }
 
@@ -996,7 +1003,48 @@ module.exports = function (app, fs) {
             });
         }
     });
-    
+
+    app.post('/api/getStatistics', function (req, res){
+        if (req.headers.authorization == undefined) {
+            res.send({error: true, message: 'Authorizatioin token required', error_code: 'auth_1'}).end();
+        }
+        else {
+            redisRequests.getUser(req.headers.authorization, function (err, userData) {
+                if (err || !userData) {
+                    res.send({error: true, message: "Statistics error", error_code: 'auth_1'}).end();
+                }
+                else {
+                    userData = JSON.parse(userData);
+
+                    var _month = Number(req.body.month) + 1, _year = Number(req.body.year), daysArray = [], months = ['January', 'February', 'March', 'April', 'May', 'June',  'July', 'August', 'September', 'October', 'November', 'December'];;
+                    var _days = daysInMonth(new Date(new Date().getFullYear(), Number(req.body.month), new Date().getDate(), 0, 0, 0));
+                    for(var i=1;i<=_days;i++) { daysArray.push(""+i+"-"+_month+"-"+_year) }
+                    var statistics = {monthName : months[Number(req.body.month)]};
+                    client.hmget('customer:' + userData.customer + ':event:', daysArray, function(err, events){
+                        if(err) console.error(err);
+                        events = _.groupBy(events, function(arr, day){ return day + 1 });
+                        events = _.each(events, function(arr, day){
+                            if(arr.length == 1 && arr[0] == null) {
+                                events[day] = [];
+                            }
+                            else events[day] = JSON.parse(arr);
+                        });
+                        statistics.events = {
+                            numByDay : _.map(events, function(byDay, key){return byDay.length})
+                        };
+
+                        console.log(statistics);
+                        res.send({
+                            error: false,
+                            message: 'Success',
+                            data: statistics
+                        }).end();
+                    });
+                }
+            })
+        }
+    });
+
     app.get('*', function (req, res) {
         res.sendFile('index.html', { root: './files/' });
     });

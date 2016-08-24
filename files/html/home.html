@@ -13,12 +13,12 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr ng-repeat="event in eventList">
+                <tr ng-repeat="event in upcomingEvents | orderBy:'-dt' | limitTo:5">
                     <td>
                         {{event.dt | date:"dd.MM.yyyy 'at' HH:mm"}}
                     </td>
                     <td>
-                        {{event.user_name}}
+                        {{event.clientname}}
                     </td>
                 </tr>
                 </tbody>

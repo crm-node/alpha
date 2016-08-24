@@ -97,23 +97,23 @@ module.exports = {
         }
     },
     
-    transactions : function (customer_id, what, data, callback) {
+    transactions : function (customer_id, what, date, data, callback) {
         switch (what) {
             case 'add':
                 data.transaction_info.dt = new Date();
-                client.hset('customer:' + customer_id + ':transaction:'  , "" + uuid.v4(), JSON.stringify(data.transaction_info), callback);
+                client.hset('customer:' + customer_id + ':transaction:'  ,  "" + date, JSON.stringify(data.events), callback);
                 break;
             case 'edit':
-                client.hset('customer:' + customer_id + ':transaction:', "" + data.transaction_id, "" + JSON.stringify(data.transaction_info), callback);
+                client.hset('customer:' + customer_id + ':transaction:',  "" + date, JSON.stringify(data.events), callback);
                 break;
             case 'all':
                 client.hgetall('customer:' + customer_id + ':transaction:', callback);
                 break;
             case 'get':
-                client.hget('customer:' + customer_id + ':transaction:', data.transaction_id, callback);
+                client.hget('customer:' + customer_id + ':transaction:', date, callback);
                 break;
             case 'del':
-                client.hdel('customer:' + customer_id + ':transaction:', data.transaction_id.transaction_id, callback);
+                client.hdel('customer:' + customer_id + ':transaction:', date, callback);
                 break;
             case 'del-multi':
                 client.hdel('customer:' + customer_id + ':transaction:', data, callback);
