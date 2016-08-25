@@ -28,20 +28,27 @@
     <script src="js/lib/bootstrap.min.js"></script>
     <script src='js/lib/moment.min.js'></script>
     <script src='js/lib/fc.min.js'></script>
-    <script src="js/angular-material-calendar.js"></script>
+    <script src="js/lib/angular-material-calendar.js"></script>
     <script src="js/lib/angular-material.min.js"></script>
     <script src="js/lib/angular-animate.min.js"></script>
     <script src="js/lib/angular-aria.min.js"></script>
-
-    <script src="https://code.highcharts.com/highcharts.js"></script>
-    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="js/lib/socket.io-client/socket.io.js"></script>
+    <script src="js/lib/highcharts.js"></script>
+    <script src="js/lib/modules/highcharts-exporting.js"></script>
 
     <script src="js/app.js"></script>
+    <script src="js/scripts/controllers/mainController.js"></script>
+    <script src="js/scripts/controllers/archiveController.js"></script>
+    <script src="js/scripts/controllers/calendarController.js"></script>
+    <script src="js/scripts/controllers/clientsController.js"></script>
+    <script src="js/scripts/controllers/customersController.js"></script>
+    <script src="js/scripts/controllers/homeController.js"></script>
+    <script src="js/scripts/controllers/statisticsController.js"></script>
+    <script src="js/scripts/controllers/transactionsController.js"></script>
+    <script src="js/scripts/controllers/usersController.js"></script>
+    <script src="js/scripts/directives/chartsline.js"></script>
+    <script src="js/scripts/services/socket.js"></script>
 
-    <script src="js/lib/socket.io-client/socket.io.js"></script>
-    <script>
-
-    </script>
 </head>
 
 <body ng-include="isLoggedIn && '/html/index.html' || '/html/login.html'"></body>
