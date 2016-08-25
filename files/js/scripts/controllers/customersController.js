@@ -23,7 +23,6 @@ app.controller('customersController', ['$http', '$scope', '$rootScope',
 
         $scope.addCustomer = function() {
             if($scope.customerAddForm.$valid) {
-                $scope.customerToAdd.customer = $rootScope.customerInfo.customer;
                 $rootScope.httpRequest("addCustomer", 'POST', {customer_info : $scope.customerToAdd}, function (data) {
                     if(!data.error) {
                         $scope.customerToAdd = {};
@@ -58,10 +57,9 @@ app.controller('customersController', ['$http', '$scope', '$rootScope',
             });
         };
 
-        $scope.prepareDeleteCustomer = function(id, login) {
+        $scope.prepareDeleteCustomer = function(id) {
             $scope.customerToDelete = {
-                customer_id : id,
-                login : login
+                customer_id : id
             };
         };
         $scope.deleteCustomer = function() {

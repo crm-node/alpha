@@ -52,17 +52,17 @@ require('./middleware/routes.js')(app, client);
 global.io = require('socket.io')(server);
 
 io.on("connect", function(data){
-    console.log("Socket.io connected");
+    //console.log("Socket.io connected");
 });
 io.on("error", function(data){
     console.log("Socket.io error");
 });
 
 io.on('connection', function(client) {
-    console.log('Client connected : ');
-    client.on('join', function(data) {
-        console.log(data);
-    });
+    //console.log('Client connected : ');
+    // client.on('join', function(data) {
+    //     console.log(data);
+    // });
 });
 
 // serverEvents.atFixedTime(2, function () {

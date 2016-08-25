@@ -13,6 +13,7 @@ app.controller('mainController', ['$http', '$routeParams', '$scope', '$rootScope
         function getUserInfo(token) {
             if (token) {
                 $rootScope.getUserInfo(function (data) {
+                    console.log(data);
                     if (data && !data.error && data.data) {
                         $rootScope.isLoggedIn = true;
                         $rootScope.userInfo = data.data;
@@ -30,6 +31,7 @@ app.controller('mainController', ['$http', '$routeParams', '$scope', '$rootScope
 
             }
         }
+        console.log(token)
         getUserInfo(token);
         $scope.userLogin = function () {
             if ($scope.login) {
@@ -39,7 +41,9 @@ app.controller('mainController', ['$http', '$routeParams', '$scope', '$rootScope
                     password: $scope.login.password
                 };
                 $rootScope.httpRequest("login", 'POST', formData, function (data) {
-                    if (!data.error) {
+
+                    if (data && !data.error) {
+                        console.log(data.data)
                         var token = data.data.id;
                         $cookies.put('token', token);
                         getUserInfo(token);

@@ -1,7 +1,7 @@
 <div id="clients">
     <div class="table-responsive">
         <div class="users-top">
-            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addCustomerModal">ADD USER</button>
+            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addCustomerModal">ADD CUSTOMER</button>
             <button type="button" class="btn btn-default pull-right" ng-click="getCustomers()">UPDATE LIST</button>
         </div>
         <div class="filters-menu">
@@ -11,6 +11,7 @@
             <thead>
             <tr>
             <tr>
+                <th>ID</th>
                 <th>Name</th>
                 <th>Status</th>
                 <th>Type</th>
@@ -21,6 +22,9 @@
             </thead>
             <tbody>
             <tr ng-repeat="(key, customer) in customerList">
+                <td>
+                    {{customer.id}}
+                </td>
                 <td>
                     {{customer.name}}
                 </td>
@@ -42,7 +46,7 @@
                     </button>
                 </td>
                 <th>
-                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#confirmDeleteCustomerModal" ng-click="prepareDeleteCustomer(customer.id, customer.login)">
+                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#confirmDeleteCustomerModal" ng-click="prepareDeleteCustomer(customer.id)">
                         <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
                     </button>
                 </th>
@@ -57,15 +61,30 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">ADD USER</h4>
+                <h4 class="modal-title">ADD CUSTOMER</h4>
             </div>
             <div class="modal-body">
                 <form class="form-horizontal" role="form" name="customerAddForm">
                     <div class="form-group">
-                        <label class="col-sm-2 control-label" for="inputName">Name</label>
+                        <label class="col-sm-2 control-label" for="inputName">Customer Name</label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control" id="inputName"
                                    placeholder="Name" ng-model="customerToAdd.name"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="inputType">Type</label>
+                        <select class="form-control" ng-model="customerToAdd.type" id="inputType">
+                            <option value="admin">Admin</option>
+                            <option value="test">Test</option>
+                            <option value="client">Client</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="inputLogin">Username</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="inputLogin"
+                                   placeholder="Login" ng-model="customerToAdd.username"/>
                         </div>
                     </div>
                     <div class="form-group">
@@ -81,16 +100,6 @@
                             <input type="text" class="form-control" id="inputPassword"
                                    placeholder="Password" ng-model="customerToAdd.password"/>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label" for="inputType">Type</label>
-                        <select class="form-control" ng-model="customerToAdd.type" id="inputType">
-                            <option value="dev">Dev</option>
-                            <option value="owner">Owner</option>
-                            <option value="cass">Cass</option>
-                            <option value="reception">Reception</option>
-                            <option value="doctor">Doctor</option>
-                        </select>
                     </div>
                 </form>
             </div>
@@ -122,7 +131,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">EDIT USER</h4>
+                <h4 class="modal-title">EDIT CUSTOMER</h4>
             </div>
             <div class="modal-body">
                 <form class="form-horizontal" role="form" name="customerEditForm">
@@ -134,27 +143,11 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-sm-2 control-label" for="inputLogin">Login</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" id="inputLogin"
-                                   placeholder="Login" ng-model="customerToEdit.login"/>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label" for="inputPassword">Password</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" id="inputPassword"
-                                   placeholder="Password" ng-model="customerToEdit.password"/>
-                        </div>
-                    </div>
-                    <div class="form-group">
                         <label class="col-sm-2 control-label" for="inputType">Type</label>
                         <select class="form-control" ng-model="customerToEdit.type" id="inputType">
-                            <option value="dev">Dev</option>
-                            <option value="owner">Owner</option>
-                            <option value="cass">Cass</option>
-                            <option value="reception">Reception</option>
-                            <option value="doctor">Doctor</option>
+                            <option value="admin">Admin</option>
+                            <option value="test">Test</option>
+                            <option value="client">Client</option>
                         </select>
                     </div>
                 </form>
