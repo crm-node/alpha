@@ -12,6 +12,14 @@ function daysInMonth(now) {
     return new Date(now.getFullYear(), now.getMonth(), 0).getDate();
 }
 
+function parseEachAndGiveId(data) {
+    _.each(data, function(item, key){
+        data[key] = JSON.parse(item);
+        data[key].id = key;
+    });
+    return data;
+}
+
 Date.prototype.isLeapYear = function() {
     var year = this.getFullYear();
     if((year & 3) != 0) return false;
@@ -35,24 +43,24 @@ module.exports = function (app, fs) {
         }
         else {
             redisRequests.user('', 'devget', {login : req.body.login}, function (err, user) {
-                if(err) res.send({error: true, message: 'Login error', error_code: 'auth_1'}).end();
+                if(err) res.send({error: true, message: 'Login error', error_code: 'auth_1', data : err}).end();
                 else {
                     user = JSON.parse(user);
                     if(!user || !user.id) {
-                        res.send({error: true, message: 'No such user.', error_code: 'auth_2'}).end();
+                        res.send({error: true, message: 'No such user.', error_code: 'auth_2', data : err}).end();
                     }
                     else {
                         if(user.password != req.body.password) {
-                            res.send({error: true, message: 'Invalid username or password.', error_code: 'auth_2'}).end();
+                            res.send({error: true, message: 'Invalid username or password.', error_code: 'auth_2', data : err}).end();
                         }
                         else {
                             redisRequests.user(user.customer, 'get', {user_id : user.id}, function (err, userData) {
                                 if(err || !userData) {
-                                    res.send({error: true, message: "User doesn't exist", error_code: 'auth_1'}).end();
+                                    res.send({error: true, message: "User doesn't exist", error_code: 'auth_1', data : err}).end();
                                 }
                                 else {
                                     redisRequests.setUser(JSON.parse(userData).id, JSON.parse(userData), function (err, resp) {
-                                        if(err) res.send({error: true, message: 'Login error', error_code: 'auth_3'}).end();
+                                        if(err) res.send({error: true, message: 'Login error', error_code: 'auth_3', data : err}).end();
                                         else {
                                             res.send({error: false, message: 'Success', data: JSON.parse(userData)}).end();
                                         }
@@ -76,11 +84,7 @@ module.exports = function (app, fs) {
                     res.send({error: true, message: "User doesn't exist", error_code: 'auth_1'}).end();
                 }
                 else {
-                    res.send({
-                        error: false,
-                        message: 'Success',
-                        data: JSON.parse(userData)
-                    }).end();
+                    res.send({error: false, message: 'Success', data: JSON.parse(userData)}).end();
                 }
             });
         }
@@ -92,15 +96,11 @@ module.exports = function (app, fs) {
         }
         else {
             redisRequests.delUser(req.headers.authorization, function (err, userData) {
-                if(err) {
+                if(err || !userData) {
                     res.send({error: true, message: "User doesn't exist", error_code: 'auth_1'}).end();
                 }
                 else {
-                    res.send({
-                        error: false,
-                        message: 'Success',
-                        data: null
-                    }).end();
+                    res.send({error: false, message: 'Success', data: null}).end();
                 }
             });
         }
@@ -114,25 +114,16 @@ module.exports = function (app, fs) {
         }
         else {
             redisRequests.getUser(req.headers.authorization, function (err, userData) {
-                if(err) {
+                if(err || !userData) {
                     res.send({error: true, message: "User doesn't exist", error_code: 'auth_1'}).end();
                 }
                 else {
-                    userData = JSON.parse(userData);
-                    redisRequests.customer(userData.customer, 'all', {}, function (err, customersData) {
-                        if(err) {
-                            res.send({error: true, message: 'Customers request error', error_code: 'cli_1'}).end();
+                    redisRequests.customer(JSON.parse(userData).customer, 'all', {}, function (err, customersData) {
+                        if(err || !customersData) {
+                            res.send({error: true, message: 'Customers request error', error_code: 'cli_1', data: err}).end();
                         }
                         else {
-                            _.each(customersData, function(client, key){
-                                customersData[key] = JSON.parse(client);
-                                customersData[key].id = key;
-                            });
-                            res.send({
-                                error: false,
-                                message: 'Success',
-                                data: customersData
-                            }).end();
+                            res.send({error: false, message: 'Success', data: parseEachAndGiveId(customersData)}).end();
                         }
                     })
                 }
@@ -152,17 +143,12 @@ module.exports = function (app, fs) {
                 else {
                     userData = JSON.parse(userData);
                     redisRequests.customer(userData.customer, 'get', {customer_id : req.body.customer_id}, function (err, customers) {
-                        if(err) {
-                            console.error(err);
+                        if(err || !customers) {
+                            res.send({error: true, message: "Customers request error", error_code: 'auth_1', data : err}).end();
                         }
                         else {
                             customers = JSON.parse(customers);
-                            console.log(customers);
-                            res.send({
-                                error: false,
-                                message: 'Success',
-                                data: customers
-                            }).end();
+                            res.send({error: false, message: 'Success', data: customers}).end();
                         }
                     });
                 }
@@ -177,21 +163,16 @@ module.exports = function (app, fs) {
         else {
             redisRequests.getUser(req.headers.authorization, function (err, userData) {
                 if(err || !userData) {
-                    res.send({error: true, message: "User doesn't exist", error_code: 'auth_1'}).end();
+                    res.send({error: true, message: "User doesn't exist", error_code: 'auth_1', data : err}).end();
                 }
                 else {
-                    userData = JSON.parse(userData);
                     redisRequests.customer(req.body.customer_id, 'edit', {customer_info : req.body.customer_info}, function (err, customers) {
                         if(err) {
-                            console.error(err);
+                            res.send({error: true, message: "Customers request error", error_code: 'auth_1', data : err}).end();
                         }
                         else {
                             customers = JSON.parse(customers);
-                            res.send({
-                                error: false,
-                                message: 'Success',
-                                data: customers
-                            }).end();
+                            res.send({error: false, message: 'Success', data: customers}).end();
                         }
                     });
                 }
@@ -216,8 +197,7 @@ module.exports = function (app, fs) {
                     };
                     redisRequests.customer(formDataCustomer.id, 'add', {customer_info : formDataCustomer}, function (err, customers) {
                         if(err) {
-                            console.error(err);
-                            res.send({error: true, message: "User doesn't exist", error_code: 'auth_1'}).end();
+                            res.send({error: true, message: "User doesn't exist", error_code: 'auth_1', data : err}).end();
                         }
                         else {
                             var formDataUser = {
@@ -230,8 +210,8 @@ module.exports = function (app, fs) {
                                 status : 0
                             };
                             redisRequests.user(formDataCustomer.id, 'add', {user_info : formDataUser}, function (err, users) {
-                                if(err) {
-                                    console.error(err);
+                                if(err || !users) {
+                                    res.send({error: true, message: "Customers request error", error_code: 'auth_1', data : err}).end();
                                 }
                                 else {
                                     users = JSON.parse(users);
@@ -258,16 +238,11 @@ module.exports = function (app, fs) {
                     userData = JSON.parse(userData);
                     redisRequests.customer(req.body.customer_id, 'del', {}, function (err, customers) {
                         if(err) {
-                            console.error(err);
+                            res.send({error: true, message: "Customers request error", error_code: 'auth_1', data : err}).end();
                         }
                         else {
                             customers = JSON.parse(customers);
-                            console.log(customers);
-                            res.send({
-                                error: false,
-                                message: 'Success',
-                                data: customers
-                            }).end();
+                            res.send({error: false, message: 'Success', data: customers}).end();
                         }
                     });
                 }
