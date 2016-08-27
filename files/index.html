@@ -6,10 +6,12 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
 
     <title>CRM Alpha</title>
-    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!--<link rel="stylesheet" href="css/bootstrap.min.css">-->
     <link rel="stylesheet" href="css/font-awesome/css/font-awesome.min.css">
+    <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="css/materialize.min.css"  media="screen,projection"/>
     <link rel="stylesheet" href="css/reset.css">
-    <link rel="stylesheet" href="css/fonts.css">
+    <!--<link rel="stylesheet" href="css/fonts.css">-->
     <link rel="stylesheet" href="css/angular-material-min.css">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/cal-styles.css">
@@ -24,6 +26,7 @@
     <script src="js/lib/angular-sanitize.min.js"></script>
     <script src="js/lib/angular-cookies.min.js"></script>
     <script src="js/lib/jquery.min.js"></script>
+    <script src="js/lib/materialize.min.js"></script>
     <script src="js/lib/underscore-min.js"></script>
     <script src="js/lib/bootstrap.min.js"></script>
     <script src='js/lib/moment.min.js'></script>
@@ -51,6 +54,6 @@
 
 </head>
 
-<body ng-include="isLoggedIn && '/html/index.html' || '/html/login.html'"></body>
+<body ng-include="isLoggedIn && '/html/index.html' || '/html/material/login.html'"></body>
 
 </html>

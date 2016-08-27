@@ -1,8 +1,8 @@
 /**
  * Created by Mark Sarukhanov on 25.08.2016.
  */
-app.controller('mainController', ['$http', '$routeParams', '$scope', '$rootScope', '$sce', '$cookies', '$location', 'socket',
-    function($http, $routeParams, $scope, $rootScope, $sce, $cookies, $location, socket) {
+app.controller('mainController', ['$http', '$routeParams', '$scope', '$rootScope', '$sce', '$cookies', '$location', 'socket','$timeout',
+    function($http, $routeParams, $scope, $rootScope, $sce, $cookies, $location, socket,$timeout) {
 
         $rootScope.isLoggedIn = false;
         $scope.login = {};
@@ -51,6 +51,9 @@ app.controller('mainController', ['$http', '$routeParams', '$scope', '$rootScope
                     else {
                         $scope.error = data.error;
                         $scope.message = data.message;
+                        $timeout(function(){
+                            $scope.message = '';
+                        }, 3000);
                     }
                 });
             } else {
