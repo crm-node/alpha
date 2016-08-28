@@ -1,6 +1,3 @@
-body {
-    font-family: 'Open Sans', sans-serif;
-}
 .login-panel {
     margin-top: 100px;
 }
@@ -44,6 +41,9 @@ body {
 #clients th {
     font-size: 16px;
     font-weight: 700;
+}
+#clients th:focus {
+    outline: none;
 }
 #clients {
     padding: 80px 30px 30px;
