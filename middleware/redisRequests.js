@@ -3,6 +3,12 @@
  */
 var uuid = require('node-uuid');
 
+function newUTCDate() {
+    var now = new Date();
+    now = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds());
+    return now;
+}
+
 module.exports = {
 
     setUser : function(id, data, callback) {
@@ -38,34 +44,13 @@ module.exports = {
     },
 
     user : function (customer_id, what, data, callback) {
+        var userData, devUser, uniqId, now;
         switch (what) {
-            case 'add':
-                var uniqId = uuid.v4();
-                var devUser = {id : uniqId, login : data.user_info.login, password : data.user_info.password, customer : data.user_info.customer};
-                var userData = JSON.stringify(data.user_info);
-                client.hset('customer:' + customer_id + ':users:', "" + uniqId, userData, function(err, resp){
-                    client.hset('devusers:', "" + devUser.login, JSON.stringify(devUser), function(errD, respD){
-                        callback(err, resp);
-                    });
-                });
-                break;
-            case 'edit':
-                var devUser = {id : data.user_info.id, login : data.user_info.login, password : data.user_info.password, customer : data.user_info.customer};
-                var userData = JSON.stringify(data.user_info);
-                client.hset('customer:' + customer_id + ':users:', "" + data.user_id, userData, function(err, resp) {
-                    client.hset('devusers:', "" + devUser.login, JSON.stringify(devUser), function (errD, respD) {
-                        callback(err, resp);
-                    })
-                });
-                break;
             case 'all':
                 client.hgetall('customer:' + customer_id + ':users:', callback);
                 break;
             case 'get':
                 client.hget('customer:' + customer_id + ':users:', data.user_id, callback);
-                break;
-            case 'devget':
-                client.hget('devusers:', "" + data.login, callback);
                 break;
             case 'del':
                 client.hdel('customer:' + customer_id + ':users:', data.user_id, function(err, resp) {
@@ -74,6 +59,37 @@ module.exports = {
                     })
                 });
                 break;
+            case 'add':
+                uniqId = uuid.v4();
+                devUser = {
+                    id : uniqId,
+                    login : data.user_info.login,
+                    password : data.user_info.password,
+                    customer : data.user_info.customer
+                };
+                userData = JSON.stringify(data.user_info);
+                client.hset('customer:' + customer_id + ':users:', "" + uniqId, userData, function(err, resp){
+                    client.hset('devusers:', "" + devUser.login, JSON.stringify(devUser), function(errD, respD){
+                        callback(err, resp);
+                    });
+                });
+                break;
+            case 'edit':
+                devUser = {id : data.user_info.id, login : data.user_info.login, password : data.user_info.password, customer : data.user_info.customer};
+                userData = JSON.stringify(data.user_info);
+                client.hset('customer:' + customer_id + ':users:', "" + data.user_id, userData, function(err, resp) {
+                    client.hset('devusers:', "" + devUser.login, JSON.stringify(devUser), function (errD, respD) {
+                        callback(err, resp);
+                    })
+                });
+                break;
+            case 'devget':
+                client.hget('devusers:', "" + data.login, callback);
+                break;
+            case 'dev-all':
+                client.hgetall('devusers:', callback);
+                break;
+
         }
     },
     
@@ -116,6 +132,10 @@ module.exports = {
                 break;
             case 'del-multi':
                 client.hdel('customer:' + customer_id + ':transaction:', data, callback);
+                break;
+            case 'm-get':
+                break;
+            case 'm-set':
                 break;
         }
     },

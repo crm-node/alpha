@@ -193,11 +193,12 @@ module.exports = function (app, fs) {
                         id : "" + uuid.v4(),
                         type : req.body.customer_info.type
                     };
-                    redisRequests.customer(formDataCustomer.id, 'add', {customer_info : formDataCustomer}, function (err, customers) {
-                        if(err) {
+                    redisRequests.customer(formDataCustomer.name, 'add', {customer_info : formDataCustomer}, function (err, customers) {
+                        if(err || !customers) {
                             res.send({error: true, message: "User doesn't exist", error_code: 'auth_1', data : err}).end();
                         }
                         else {
+                            console.log(customers)
                             var formDataUser = {
                                 customer : formDataCustomer.id,
                                 name : req.body.customer_info.username,
@@ -207,7 +208,7 @@ module.exports = function (app, fs) {
                                 id : "" + uuid.v4(),
                                 status : 0
                             };
-                            redisRequests.user(formDataCustomer.id, 'add', {user_info : formDataUser}, function (err, users) {
+                            redisRequests.user(formDataCustomer.name, 'add', {user_info : formDataUser}, function (err, users) {
                                 if(err || !users || users == 'null') {
                                     res.send({error: true, message: "Customers request error", error_code: 'auth_1', data : err}).end();
                                 }
@@ -244,7 +245,6 @@ module.exports = function (app, fs) {
             });
         }
     });
-
 
 
     app.post('/api/getUsers', function (req, res) {
@@ -407,7 +407,7 @@ module.exports = function (app, fs) {
         }
         else {
             redisRequests.getUser(req.headers.authorization, function (err, userData) {
-               if(err) {
+               if(err || !userData || userData == 'null') {
                    res.send({error: true, message: "User doesn't exist", error_code: 'auth_1'}).end();
                }
                else {
@@ -431,9 +431,9 @@ module.exports = function (app, fs) {
         }
         else {
             redisRequests.getUser(req.headers.authorization, function (err, userData) {
-                if(err || !userData) {
-                    res.send({error: true, message: "User doesn't exist", error_code: 'auth_1'}).end();
-                }
+               if(err || !userData || userData == 'null') {
+                   res.send({error: true, message: "User doesn't exist", error_code: 'auth_1'}).end();
+               }
                 else {
                     userData = JSON.parse(userData);
                     redisRequests.clients(userData.customer, 'get', {client_id : req.body.client_id}, function (err, cliensData) {
@@ -1211,6 +1211,9 @@ module.exports = function (app, fs) {
             })
         }
     });
+
+
+
 
     app.get('*', function (req, res) {
         res.sendFile('index.html', { root: './files/' });
