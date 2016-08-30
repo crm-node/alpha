@@ -12,7 +12,7 @@ app.config(['$routeProvider', '$locationProvider', '$httpProvider', '$mdThemingP
                 controller: 'calendarController'
             })
             .when("/clients", {
-                templateUrl: '/html/clients.html',
+                templateUrl: '/html/material/clients.html',
                 controller: 'clientsController'
             })
             //.when("/client/:id", {
@@ -28,7 +28,7 @@ app.config(['$routeProvider', '$locationProvider', '$httpProvider', '$mdThemingP
             //    controller: 'homeController'
             //})
             .when("/users", {
-                templateUrl: '/html/users.html',
+                templateUrl: '/html/material/users.html',
                 controller: 'usersController'
             })
             //.when("/user/:id", {
