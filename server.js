@@ -14,7 +14,8 @@ global.request = require('request');
 
 var port = parseInt(process.env.OPENSHIFT_NODEJS_PORT) || parseInt(process.env.PORT) ||  999;
 
-var redis = require('redis');
+var Promise = require('bluebird');
+var redis = Promise.promisifyAll(require('redis'));
 global.client = redis.createClient(17305, 'redis-17305.c8.us-east-1-3.ec2.cloud.redislabs.com', {no_ready_check: true});
 client.auth('dontfuckwithmyteam', function (err) {
     if (err) throw err;

@@ -3,11 +3,9 @@
  */
 
 var redisRequests = require('./redisRequests');
-var uuid = require('node-uuid');
+var helper = require('./helperFunctions');
 
-function daysInMonth(now) {
-    return new Date(now.getFullYear(), now.getMonth(), 0).getDate();
-}
+var uuid = require('node-uuid');
 
 module.exports = {
     
@@ -35,7 +33,7 @@ module.exports = {
                 switch (type) {
                     case 'month' :
                         function monthLoop() {
-                            var nextExecutionTime = daysInMonth(_now) * 86400000;
+                            var nextExecutionTime = helper.daysInMonth(_now) * 86400000;
                             func();
                             if(nextExecutionTime > 2147483647) {
                                 setTimeout(function(){
