@@ -3,7 +3,13 @@
  */
 app.controller("calendarController", ['$http', '$scope', '$rootScope', '$filter', '$q', '$timeout', '$log', 'MaterialCalendarData', '$cookies', 'socket',
     function($http, $scope, $rootScope, $filter, $q, $timeout, $log, MaterialCalendarData, $cookies, socket) {
-
+        $(document).ready(function() {
+            $('.modal-trigger').leanModal({
+                ready: function() {
+                    $('select').material_select()
+                }
+            })
+        });
         $scope.selectedDate = new Date();
         $scope.weekStartsOn = 0;
         $scope.dayFormat = "d";

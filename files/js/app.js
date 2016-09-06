@@ -8,7 +8,7 @@ app.config(['$routeProvider', '$locationProvider', '$httpProvider', '$mdThemingP
                 controller: 'homeController'
             })
             .when("/calendar", {
-                templateUrl: '/html/calendar.html',
+                templateUrl: '/html/material/calendar.html',
                 controller: 'calendarController'
             })
             .when("/clients", {

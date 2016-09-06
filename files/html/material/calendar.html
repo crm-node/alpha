@@ -1,0 +1,214 @@
+<div id="clients">
+    <div class="table-responsive">
+        <div class="users-top">
+            <!--<button type="button" class="btn btn-success" data-toggle="modal" data-target="#addEventModal">ADD EVENT</button>-->
+            <a class="waves-effect waves-light btn modal-trigger" href="#addEventModal">ADD EVENT</a>
+            <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#editEventSchema" ng-click="prepareEditSchema()">EDIT SCHEMA</button>
+            <button type="button" class="btn btn-default pull-right" ng-click="getUpcomingEvents()">UPCOMING EVENTS</button>
+            <button type="button" class="btn btn-default pull-right" ng-click="getEvents()">UPDATE LIST</button>
+        </div>
+    </div>
+</div>
+
+<div id="daysEventsModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">EVENTS - {{}}</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal ng-pristine ng-valid" role="form" name="" ng-repeat="event in daysEventsList">
+                    <div class="form-group">
+                        <label class="col-sm-4" for="inputClientName">Client Name</label>
+                        <div class="col-sm-8">
+                            {{event.clientname}}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4" for="inputDescription">Description</label>
+                        <div class="col-sm-8">
+                            {{event.description}}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4" for="inputDate">Date</label>
+                        <div class="col-sm-8">
+                            {{event.dt}}
+                        </div>
+                    </div>
+                    <div style="width: 100%;height: 1px;background: #FFFFFF"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" ng-click="openAddEvent(preAddDate)">ADD</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="addEventModal" class="modal">
+    <div class="modal-content">
+        <button type="button" class="modal-action modal-close waves-effect waves-green btn-flat" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">ADD EVENT</h4>
+        <div class="row">
+            <form class="col s12" name="eventAddForm">
+                <div class="input-field">
+                    <select ng-model="eventToAdd.client" id="inputClientName">
+                        <option value="{{client}}" ng-repeat="client in clientList">{{client.FirstName}} {{client.LastName}}</option>
+                    </select>
+                    <label for="inputClientName">Client</label>
+                </div>
+                <div class="input-field">
+                    <select ng-model="eventToAdd.doctor" id="inputDoctorName">
+                        <option value="{{doctor}}" ng-repeat="doctor in doctorsList">{{doctor.name}}</option>
+                    </select>
+                    <label for="inputDoctorName">Doctor</label>
+                </div>
+                <div class="input-field">
+                    <input type="text" class="validate" id="inputDescription"
+                           ng-model="eventToAdd.description">
+                    <label  for="inputDescription">Description</label>
+                </div>
+                <div class="input-field">
+                    <input type="datetime-local" class="validate" id="inputDate"
+                           ng-model="eventToAdd.dt">
+                    <label for="inputDate">Date</label>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <a href="" class=" modal-action modal-close waves-effect waves-green btn-flat" ng-click="addEvent()">ADD</a>
+        <a href="" class=" modal-action modal-close waves-effect waves-green btn-flat">Close</a>
+    </div>
+</div>
+<!--<div id="addEventModal" class="modal fade" role="dialog">-->
+    <!--<div class="modal-dialog">-->
+        <!--<div class="modal-content">-->
+            <!--<div class="modal-header">-->
+                <!--<button type="button" class="close" data-dismiss="modal">&times;</button>-->
+                <!--<h4 class="modal-title">ADD EVENT</h4>-->
+            <!--</div>-->
+            <!--<div class="modal-body">-->
+                <!--<form class="form-horizontal ng-pristine ng-valid" role="form" name="eventAddForm">-->
+                    <!--<div class="form-group">-->
+                        <!--<label class="col-sm-4 control-label" for="inputClientName">Client</label>-->
+                        <!--<div class="col-sm-8">-->
+                            <!--<select class="form-control" ng-model="eventToAdd.client" id="inputClientName">-->
+                                <!--<option value="{{client}}" ng-repeat="client in clientList">{{client.FirstName}} {{client.LastName}}</option>-->
+                            <!--</select>-->
+                        <!--</div>-->
+                    <!--</div>-->
+                    <!--<div class="form-group">-->
+                        <!--<label class="col-sm-4 control-label" for="inputDoctorName">Doctor</label>-->
+                        <!--<div class="col-sm-8">-->
+                            <!--<select class="form-control" ng-model="eventToAdd.doctor" id="inputDoctorName">-->
+                                <!--<option value="{{doctor}}" ng-repeat="doctor in doctorsList">{{doctor.name}}</option>-->
+                            <!--</select>-->
+                        <!--</div>-->
+                    <!--</div>-->
+                    <!--<div class="form-group">-->
+                        <!--<label class="col-sm-4 control-label" for="inputDescription">Description</label>-->
+                        <!--<div class="col-sm-8">-->
+                            <!--<input type="text" class="form-control" id="inputDescription"-->
+                                   <!--placeholder="Description" ng-model="eventToAdd.description">-->
+                        <!--</div>-->
+                    <!--</div>-->
+                    <!--<div class="form-group">-->
+                        <!--<label class="col-sm-4 control-label" for="inputDate">Date</label>-->
+                        <!--<div class="col-sm-8">-->
+                            <!--<input type="datetime-local" class="form-control" id="inputDate"-->
+                                   <!--placeholder="Registration" ng-model="eventToAdd.dt">-->
+                        <!--</div>-->
+                    <!--</div>-->
+                <!--</form>-->
+            <!--</div>-->
+            <!--<div class="modal-footer">-->
+                <!--<button type="button" class="btn btn-success" ng-click="addEvent()">ADD</button>-->
+                <!--<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>-->
+            <!--</div>-->
+        <!--</div>-->
+    <!--</div>-->
+<!--</div>-->
+
+<div id="confirmDeleteEventModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Are you sure you want to delete this event?</h4>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" ng-click="deleteEvent()" data-dismiss="modal">Delete</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--<div id="editEventModal" class="modal fade" role="dialog">-->
+    <!--<div class="modal-dialog">-->
+        <!--<div class="modal-content">-->
+            <!--<div class="modal-header">-->
+                <!--<button type="button" class="close" data-dismiss="modal">&times;</button>-->
+                <!--<h4 class="modal-title">EDIT EVENT</h4>-->
+            <!--</div>-->
+            <!--<div class="modal-body">-->
+                <!--<form class="form-horizontal ng-pristine ng-valid" role="form" name="eventAddForm">-->
+                    <!--<div class="form-group">-->
+                        <!--<label class="col-sm-2 control-label" for="inputClientName">Client Name</label>-->
+                        <!--<div class="col-sm-10">-->
+                            <!--<input type="text" class="form-control" id="inputClientName"-->
+                                   <!--placeholder="Event Name" ng-model="eventToEdit.clientname">-->
+                        <!--</div>-->
+                    <!--</div>-->
+                    <!--<div class="form-group">-->
+                        <!--<label class="col-sm-2 control-label" for="inputDescription">Description</label>-->
+                        <!--<div class="col-sm-10">-->
+                            <!--<input type="text" class="form-control" id="inputDescription"-->
+                                   <!--placeholder="Description" ng-model="eventToEdit.description">-->
+                        <!--</div>-->
+                    <!--</div>-->
+                    <!--<div class="form-group">-->
+                        <!--<label class="col-sm-2 control-label" for="inputDate">Date</label>-->
+                        <!--<div class="col-sm-10">-->
+                            <!--<input type="datetime-local" class="form-control" id="inputDate"-->
+                                   <!--placeholder="Registration" ng-model="eventToEdit.dt">-->
+                        <!--</div>-->
+                    <!--</div>-->
+                <!--</form>-->
+            <!--</div>-->
+            <!--<div class="modal-footer">-->
+                <!--<button type="button" class="btn btn-success" ng-click="editEvent()">EDIT</button>-->
+                <!--<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>-->
+            <!--</div>-->
+        <!--</div>-->
+    <!--</div>-->
+<!--</div>-->
+
+<div id="calendar">
+    <div style="height:800px;">
+        <calendar-md id="calendar-demo"
+                     flex layout layout-fill
+                     calendar-direction="direction"
+                     on-prev-month="prevMonth"
+                     on-next-month="nextMonth"
+                     on-day-click="dayClick"
+                     title-format="'MMMM y'"
+                     ng-model='selectedDate'
+                     day-format="dayFormat"
+                     day-label-format="'EEE'"
+                     day-label-tooltip-format="'EEEE'"
+                     day-tooltip-format="'fullDate'"
+                     week-starts-on="weekStartsOn"
+                     start-Date-of-month="1"
+                     no-of-days="30"
+                     tooltips="true"
+                     day-content="setDayContent"
+                     disable-future-selection="disableFutureDates"></calendar-md>
+    </div>
+
+</div>
+
+
