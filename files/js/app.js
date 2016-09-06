@@ -97,7 +97,6 @@ app.run(['$rootScope', '$timeout', '$http','$cookies',
         };
         $rootScope.getUserInfo = function(callback) {
             var token = $cookies.get('token');
-            console.log(token)
             $http({
                 method: 'POST',
                 timeout: 15000,

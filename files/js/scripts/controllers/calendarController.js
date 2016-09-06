@@ -3,12 +3,10 @@
  */
 app.controller("calendarController", ['$http', '$scope', '$rootScope', '$filter', '$q', '$timeout', '$log', 'MaterialCalendarData', '$cookies', 'socket',
     function($http, $scope, $rootScope, $filter, $q, $timeout, $log, MaterialCalendarData, $cookies, socket) {
-        $(document).ready(function() {
-            $('.modal-trigger').leanModal({
-                ready: function() {
-                    $('select').material_select()
-                }
-            })
+        $('.modal-trigger').leanModal({
+            ready: function() {
+                $('select').material_select()
+            }
         });
         $scope.selectedDate = new Date();
         $scope.weekStartsOn = 0;
@@ -125,9 +123,13 @@ app.controller("calendarController", ['$http', '$scope', '$rootScope', '$filter'
                 });
             }
             var data = '';
-            if($scope.eventList[key]) {
+            if($scope.eventList[key] && $scope.eventList[key].length && $scope.eventList[key].length != 0) {
                 data = generateStringForDate($scope.eventList[key]);
             }
+            else {
+                $scope.eventList[key] = [];
+            }
+
             var deferred = $q.defer();
             $timeout(function() {
                 deferred.resolve(data);
