@@ -4,6 +4,7 @@
 app.controller('clientsController', ['$http', '$scope', '$rootScope',
     function($http, $scope, $rootScope) {
         $('.modal-trigger').leanModal();
+
         $scope.clientToAdd = {};
         $scope.clientList = [];
         $scope.clientToEdit = {};
