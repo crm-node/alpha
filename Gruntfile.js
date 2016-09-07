@@ -33,7 +33,6 @@ module.exports = function(grunt) {
                     'files/js/lib/angular-cookies.min.js',
                     'files/js/lib/underscore-min.js',
                     'files/js/lib/moment.min.js',
-                    'files/js/lib/fc.min.js',
                     'files/js/lib/socket.io-client/socket.io.js',
                     'files/js/lib/materialize.min.js',
                     'files/js/lib/highcharts.js',
