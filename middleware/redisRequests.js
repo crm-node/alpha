@@ -45,11 +45,11 @@ module.exports = {
                 client.hgetall('customer:' + customer_id + ':users:', callback);
                 break;
             case 'get':
-                client.hget('customer:' + customer_id + ':users:', data.login, callback);
+                client.hget('customer:' + customer_id + ':users:', data, callback);
                 break;
             case 'del':
-                client.hdel('customer:' + customer_id + ':users:', data.login, function(err, resp) {
-                    client.hdel('devusers:', data.login, function (errD, respD) {
+                client.hdel('customer:' + customer_id + ':users:', data, function(err, resp) {
+                    client.hdel('devusers:', data, function (errD, respD) {
                         callback(err, resp);
                     })
                 });
@@ -69,7 +69,7 @@ module.exports = {
                 });
                 break;
             case 'devget':
-                client.hget('devusers:', "" + data.login, callback);
+                client.hget('devusers:', "" + data, callback);
                 break;
             case 'dev-all':
                 client.hgetall('devusers:', callback);

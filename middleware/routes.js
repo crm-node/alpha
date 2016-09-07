@@ -34,7 +34,7 @@ module.exports = function (app, fs) {
             res.send({error: true, message: 'Already logged in', error_code: 'auth_1'}).end();
         }
         else {
-            redisRequests.user('', 'devget', {login : req.body.login}, function (err, user) {
+            redisRequests.user('', 'devget', req.body.login, function (err, user) {
                 if(err) res.send({error: true, message: 'Login error', error_code: 'auth_1', data : err}).end();
                 else {
                     user = JSON.parse(user);
@@ -46,7 +46,7 @@ module.exports = function (app, fs) {
                             res.send({error: true, message: 'Invalid username or password.', error_code: 'auth_2', data : err}).end();
                         }
                         else {
-                            redisRequests.user(user.customer, 'get', {user_id : user.id}, function (err, userData) {
+                            redisRequests.user(user.customer, 'get', user.id, function (err, userData) {
                                 if(err || !userData) {
                                     res.send({error: true, message: "User doesn't exist", error_code: 'auth_1', data : err}).end();
                                 }
@@ -449,10 +449,20 @@ module.exports = function (app, fs) {
 
 
     app.get('*', function (req, res) {
-        res.sendFile('index.html', { root: './files/' });
+        if (req.headers.cookie && req.headers.cookie.indexOf('token') > -1) {
+            res.sendFile('index.html', { root: './files/' });
+        }
+        else {
+            res.sendFile('login.html', { root: './files/' });
+        }
     });
 
     app.post('*', function (req, res) {
-        res.sendFile('index.html', { root: './files/' });
+        if (req.headers.cookie && req.headers.cookie.indexOf('token') > -1) {
+            res.sendFile('index.html', { root: './files/' });
+        }
+        else {
+            res.sendFile('login.html', { root: './files/' });
+        }
     });
 };

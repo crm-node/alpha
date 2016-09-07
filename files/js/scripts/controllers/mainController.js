@@ -41,12 +41,12 @@ app.controller('mainController', ['$http', '$routeParams', '$scope', '$rootScope
                     password: $scope.login.password
                 };
                 $rootScope.httpRequest("login", 'POST', formData, function (data) {
-
                     if (data && !data.error) {
                         console.log(data.data)
                         var token = data.data.id;
                         $cookies.put('token', token);
-                        getUserInfo(token);
+                        //getUserInfo(token);
+                        location.reload();
                     }
                     else {
                         $scope.error = data.error;
@@ -65,7 +65,8 @@ app.controller('mainController', ['$http', '$routeParams', '$scope', '$rootScope
                 if(!data.error) {
                     $cookies.remove('token');
                     $rootScope.isLoggedIn = false;
-                    $location.path("/");
+                    // $location.path("/");
+                    location.reload();
                 }
                 else {
                     $scope.error = data.error;
