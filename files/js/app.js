@@ -1,7 +1,7 @@
-var app = angular.module('crmApp', ['ngRoute', 'ngSanitize', 'ngAnimate', 'ngCookies','ngMaterial', 'materialCalendar']);
+var app = angular.module('crmApp', ['ngRoute', 'ngSanitize', 'ngCookies']);
 
-app.config(['$routeProvider', '$locationProvider', '$httpProvider', '$mdThemingProvider',
-    function ($routeProvider, $locationProvider, $httpProvider, $mdThemingProvider) {
+app.config(['$routeProvider', '$locationProvider', '$httpProvider',
+    function ($routeProvider, $locationProvider, $httpProvider) {
         $routeProvider
             .when("/", {
                 templateUrl: '/html/home.html',
@@ -80,9 +80,6 @@ app.config(['$routeProvider', '$locationProvider', '$httpProvider', '$mdThemingP
             enabled: true,
             requireBase: false
         });
-        $mdThemingProvider
-            .theme("default")
-            .primaryPalette("pink")
     }
 ]);
 

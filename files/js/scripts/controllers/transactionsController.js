@@ -3,7 +3,11 @@
  */
 app.controller('transactionsController', ['$http', '$scope', '$rootScope',
     function($http, $scope, $rootScope) {
-
+        $('.modal-trigger').leanModal({
+            ready: function() {
+                $('select').material_select()
+            }
+        });
         $scope.transactionToAdd = {};
         $scope.transactionList = [];
         $scope.transactionToEdit = {};
@@ -24,7 +28,7 @@ app.controller('transactionsController', ['$http', '$scope', '$rootScope',
         };
         $scope.getClients = function() {
             $rootScope.httpRequest("getClients", 'POST', {}, function (data) {
-                if(!data.error && data.data && data.data['schema']) {
+                if(data && !data.error && data.data && data.data['schema']) {
                     $scope.clientList = _.filter(data.data, function(item){ return item.id != 'schema'; });
                 }
                 else {
@@ -38,7 +42,7 @@ app.controller('transactionsController', ['$http', '$scope', '$rootScope',
         $scope.getTransactions = function() {
             $scope.transactionList = [];
             $rootScope.httpRequest("getTransactions", 'POST', {}, function (data) {
-                if(!data.error && data.data) {
+                if(data && !data.error) {
                     $scope.transactionList = _.filter(data.data, function(item){ return item.id != 'schema'; });
                 }
                 else {
@@ -50,9 +54,10 @@ app.controller('transactionsController', ['$http', '$scope', '$rootScope',
 
         $scope.getTransactionsByDate = function() {
             $rootScope.httpRequest("getTransactionsByDate", 'POST', {
-                dt : new Date()
+                dt_from : new Date(),
+                dt_till : new Date()
             }, function (data) {
-                if(!data.error && data.data) {
+                if(data && !data.error) {
                 }
                 else {
                     $scope.error = data.error;
@@ -74,12 +79,10 @@ app.controller('transactionsController', ['$http', '$scope', '$rootScope',
                 $scope.transactionToAdd.user_id = $rootScope.userInfo.id;
                 $scope.transactionToAdd.user_name = $rootScope.userInfo.name;
                 $scope.transactionToAdd.amount = (type=='input' ? 1 : -1) * $scope.transactionToAdd.amount;
-                $rootScope.httpRequest("addTransaction", 'POST', {transaction_info : $scope.transactionToAdd}, function (data) {
-                    if(!data.error) {
+                $rootScope.httpRequest("addTransaction", 'POST', $scope.transactionToAdd, function (data) {
+                    if(data && !data.error) {
                         $scope.transactionToAdd = {};
                         $scope.getTransactions();
-                        $('#addTransactionModalIn').modal('hide');
-                        $('#addTransactionModalOut').modal('hide');
                     }
                     else {
                         $scope.error = data.error;
@@ -93,14 +96,10 @@ app.controller('transactionsController', ['$http', '$scope', '$rootScope',
             $scope.transactionToEdit = angular.copy(transaction);
         };
         $scope.editTransaction = function() {
-            $rootScope.httpRequest("editTransaction", 'POST', {
-                transaction_id : $scope.transactionToEdit.id,
-                transaction_info: $scope.transactionToEdit
-            }, function (data) {
-                if(!data.error) {
+            $rootScope.httpRequest("editTransaction", 'POST', $scope.transactionToEdit, function (data) {
+                if(data && !data.error) {
                     $scope.transactionToEdit = {};
                     $scope.getTransactions();
-                    $('#editTransactionModal').modal('hide');
                 }
                 else {
                     $scope.error = data.error;
@@ -116,11 +115,10 @@ app.controller('transactionsController', ['$http', '$scope', '$rootScope',
             };
         };
         $scope.deleteTransaction = function() {
-            $rootScope.httpRequest("delTransaction", 'POST', {transaction_id : $scope.transactionToDelete}, function (data) {
-                if(!data.error) {
+            $rootScope.httpRequest("delTransaction", 'POST', $scope.transactionToDelete, function (data) {
+                if(data && !data.error) {
                     $scope.transactionToDelete = '';
                     $scope.getTransactions();
-                    $('#confirmDeleteTransactionModal').modal('hide');
                 }
                 else {
                     $scope.error = data.error;
@@ -129,17 +127,5 @@ app.controller('transactionsController', ['$http', '$scope', '$rootScope',
             });
         };
 
-        $scope.sendToArchive = function() {
-            $scope.transactionList = [];
-            $rootScope.httpRequest("sendToArchive", 'POST', {type : 'transactions'}, function (data) {
-                if(!data.error && data.data) {
-                    $scope.getTransactions();
-                }
-                else {
-                    $scope.error = data.error;
-                    $scope.message = data.message;
-                }
-            });
-        }
     }
 ]);

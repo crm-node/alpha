@@ -1,0 +1,139 @@
+<div class="header">
+    <i class="fa fa-angle-left" ng-click="previous()"></i>
+    <span>{{month.format("MMMM, YYYY")}}</span>
+    <i class="fa fa-angle-right" ng-click="next()"></i>
+</div>
+
+<div class="week names">
+    <span class="day" ng-if="firstday!='mon'">Sun</span>
+    <span class="day">Mon</span>
+    <span class="day">Tue</span>
+    <span class="day">Wed</span>
+    <span class="day">Thu</span>
+    <span class="day">Fri</span>
+    <span class="day">Sat</span>
+    <span class="day" ng-if="firstday=='mon'">Sun</span>
+</div>
+<div class="week" ng-repeat="week in weeks">
+    <span class="day day-ceil" ng-class="{ today: day.isToday, 'different-month': !day.isCurrentMonth, selected: day.date.isSame(selected) }"
+          ng-click="select(day)" ng-repeat="day in week.days">
+        <span class="day-number">{{day.number}}</span>
+        <span class="day-inner" ng-bind-html="eventsHtml[day.fullName]"></span>
+    </span>
+</div>
+
+<style>
+    .border-box {
+        box-sizing: border-box;
+        -moz-box-sizing: border-box;
+    }
+    crmcalendar {
+        display: inline-block;
+        box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        background: white;
+        width: calc(100% - 60px);
+        border: solid 1px #cccccc;
+        margin: 30px;
+    }
+    crmcalendar > div.header {
+        float: left;
+        width: 100%;
+        background: #2875c7;
+        height: 40px;
+        color: white;
+    }
+    crmcalendar > div.header > * {
+        height: 40px;
+        line-height: 40px !important;
+        display: inline-block;
+        vertical-align: middle;
+    }
+    crmcalendar > div.header > i {
+        float: left;
+        width: 40px;
+        font-size: 1.125em;
+        font-weight: bold;
+        position: relative;
+        box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        padding: 0 10px;
+        cursor: pointer;
+    }
+    crmcalendar > div.header > i.fa-angle-left {
+        text-align: left;
+    }
+    crmcalendar > div.header > i.fa-angle-right {
+        text-align: right;
+        margin-left: -40px;
+    }
+    crmcalendar > div.header > span {
+        float: left;
+        width: 100%;
+        font-weight: bold;
+        text-transform: uppercase;
+        box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        padding-left: 50px;
+        margin-left: -40px;
+        text-align: center;
+        padding-right: 40px;
+        color: inherit;
+    }
+    crmcalendar > div.week {
+        float: left;
+        width: 100%;
+        border-top: solid 1px #cccccc;
+    }
+    crmcalendar > div.week:first-child {
+        border-top: none;
+    }
+    crmcalendar > div.week > span.day {
+        float: left;
+        width: 14.28571429%;
+        box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        border-left: solid 1px #cccccc;
+        font-size: 0.75em;
+        text-align: center;
+        height: 30px;
+        line-height: 30px !important;
+        display: inline-block;
+        vertical-align: middle;
+        background: white;
+        cursor: pointer;
+        color: black;
+    }
+    crmcalendar > div.week > span.day:first-child {
+        border-left: none;
+    }
+    crmcalendar > div.week > span.day.today {
+        background: #E3F2FF;
+    }
+    crmcalendar > div.week > span.day.different-month {
+        color: #C0C0C0;
+    }
+    crmcalendar > div.week > span.day.selected {
+        background: #2875c7;
+        color: white;
+    }
+    crmcalendar > div.week.names > span {
+        color: #2875c7;
+        font-weight: bold;
+    }
+    crmcalendar > div.week > span.day.day-ceil {
+        height: 100px;
+    }
+    .day-number, .day-inner {
+        float: left;
+        padding: 0 5px;
+        display: block;
+        height: 100%;
+    }
+    .day-number {
+        width: 25px;
+    }
+    .day-inner {
+        width: calc(100% - 25px);
+    }
+</style>

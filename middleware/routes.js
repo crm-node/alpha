@@ -214,7 +214,7 @@ module.exports = function (app, fs) {
 
     app.post('/api/getAllEvents', function (req, res) {
         autorizationRequest(req.headers.authorization, function (userData) {
-            redisRequests.events(userData.customer, 'all', '', {}, function(err, resp) {helper.parseResponse(err, resp, res)});
+            redisRequests.events(userData.customer, 'get-by-customer', '', {}, function(err, resp) {helper.parseResponse(err, resp, res)});
         });
     });
 
@@ -349,66 +349,46 @@ module.exports = function (app, fs) {
 
     app.post('/api/getTransactions', function (req, res) {
         autorizationRequest(req.headers.authorization, function (userData) {
-            redisRequests.transactions(userData.customer, 'all', {}, function(err, resp) {helper.parseResponse(err, resp, res)});
+            redisRequests.transactions(userData.customer, 'get-by-customer', '', {}, function(err, resp) {helper.parseResponse(err, resp, res)});
         });
     });
 
-    app.post('/api/clientTransactions', function (req, res) {
+    app.post('/api/getTransactionsByUser', function (req, res) {
         autorizationRequest(req.headers.authorization, function (userData) {
-            redisRequests.transactions(userData.customer, 'all', {}, function (err, transactionsData) {
-                if(err || !transactionsData) {
-                    res.send({error: true, message: 'Transactions request error', error_code: 'cli_1'}).end();
-                }
-                else {
-                    transactionsData = helper.parseEachAndGiveId(transactionsData);
-                    transactionsData = _.filter(transactionsData, function(item){ return item.client && item.client.client_id == req.body.client_id});
-                    res.send({error: false, message: 'Success', data: transactionsData}).end();
-                }
-            });
+            redisRequests.transactions(userData.customer, 'get-by-client', '', req.body, function(err, resp) {helper.parseResponse(err, resp, res)});
+        });
+    });
+    
+    app.post('/api/getTransactionsByClient', function (req, res) {
+        autorizationRequest(req.headers.authorization, function (userData) {
+            redisRequests.transactions(userData.customer, 'get-by-client', '', req.body, function(err, resp) {helper.parseResponse(err, resp, res)});
         });
     });
 
-    app.post('/api/getTransaction', function (req, res) {
+    app.post('/api/getTransactionsByDate', function (req, res) {
         autorizationRequest(req.headers.authorization, function (userData) {
-            redisRequests.transactions(userData.customer, 'get', {transaction_id : req.body.transaction_id}, function(err, resp) {helper.parseResponse(err, resp, res)});
+            redisRequests.transactions(userData.customer, 'get-by-client', '', helper.getDatesBetween(new Date(req.body.dt_from), new Date(req.body.dt_till)), function(err, resp) {helper.parseResponse(err, resp, res)});
+        });
+    });
+    
+    app.post('/api/getTransactionByID', function (req, res) {
+        autorizationRequest(req.headers.authorization, function (userData) {
+            redisRequests.transactions(userData.customer, 'get', '', req.body, function(err, resp) {helper.parseResponse(err, resp, res)});
         });
     });
 
     app.post('/api/editTransaction', function (req, res) {
         autorizationRequest(req.headers.authorization, function (userData) {
-            var event_day = new Date(req.body.transaction_info.dt);
-            var date = "" + event_day.getDate() + "-" + (event_day.getMonth() + 1) + "-" + event_day.getFullYear();
-            redisRequests.transactions(userData.customer, 'edit', {transaction_id : req.body.transaction_id, transaction_info : req.body.transaction_info}, function(err, resp) {helper.parseResponse(err, resp, res)});
+            redisRequests.transactions(userData.customer, 'edit', '', req.body.transaction_info, function(err, resp) {helper.parseResponse(err, resp, res)});
         });
     });
 
     app.post('/api/addTransaction', function (req, res) {
         autorizationRequest(req.headers.authorization, function (userData) {
-            if(userData && req.body.transaction_info) {
-                req.body.transaction_info.dt = new Date();
-                req.body.transaction_info.id = "" + uuid.v4();
-                var event_day = new Date(req.body.transaction_info.dt);
-                var date = "" + event_day.getDate() + "-" + (event_day.getMonth() + 1) + "-" + event_day.getFullYear();
-                redisRequests.transactions(userData.customer, 'add', {transaction_info : req.body.transaction_info}, function (err, customersData) {
-                    if(err) {
-                        res.send({error: true, message: 'Transactions request error', error_code: 'cli_1'}).end();
-                    }
-                    else {
-                        client.hget('customer:' + userData.customer + ':transactions:'  ,  "" + date, function(err, transactions){
-                            if( typeof transactions == 'string' && transactions.indexOf("null") > -1) transactions = [];
-                            if(transactions != null) transactions = JSON.parse(transactions);
-                            else transactions = [];
-                            transactions.push(req.body.transaction_info);
-                            client.hset('customer:' + userData.customer + ':transactions:'  ,  "" + date, JSON.stringify(transactions), function(err, data){
-                                res.send({
-                                    error: false,
-                                    message: 'Success',
-                                    data: JSON.parse(customersData)
-                                }).end();
-                            });
-                        });
-                    }
-                })
+            if(userData && req.body) {
+                req.body.dt = new Date();
+                req.body.id = "" + uuid.v4();
+                redisRequests.transactions(userData.customer, 'add', helper.formattedDate(req.body.dt), req.body, function(err, resp) {helper.parseResponse(err, resp, res)});
             }
             else res.send({error: true, message: 'Transactions request error', error_code: 'cli_1'}).end();
         });
@@ -416,13 +396,16 @@ module.exports = function (app, fs) {
 
     app.post('/api/delTransaction', function (req, res) {
         autorizationRequest(req.headers.authorization, function (userData) {
-            if(userData && req.body.transaction_id) {
-                redisRequests.transactions(userData.customer, 'del', {transaction_id : req.body.transaction_id}, function(err, resp) {helper.parseResponse(err, resp, res)})
+            if(userData && req.body) {
+                redisRequests.transactions(userData.customer, 'del', "" + helper.formattedDate(req.body.dt), req.body, function(err, resp) {helper.parseResponse(err, resp, res)})
             }
             else res.send({error: true, message: 'Transactions request error', error_code: 'cli_1'}).end();
         });
     });
-
+    
+    
+    
+    
     app.post('/api/getUpcomingEvents', function (req, res) {
         autorizationRequest(req.headers.authorization, function (userData) {
             redisRequests.upcomingEvent(userData.customer, 'all', {}, function (err, upcomingEvents) {
@@ -438,16 +421,6 @@ module.exports = function (app, fs) {
             });
         });
     });
-
-    app.post('/api/getTransactionsByDate', function (req, res) {
-        autorizationRequest(req.headers.authorization, function (userData) {
-            var event_day = new Date(req.body.dt);
-            var date = "" + event_day.getDate() + "-" + (event_day.getMonth() + 1) + "-" + event_day.getFullYear();
-            client.hget('customer:' + userData.customer + ':transactions:'  ,  "" + date, function(err, resp) {helper.parseResponse(err, resp, res)});
-        });
-    });
-
-
 
     app.post('/api/getStatistics', function (req, res){
         autorizationRequest(req.headers.authorization, function (userData) {

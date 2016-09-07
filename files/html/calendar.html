@@ -149,28 +149,32 @@
     </div>
 </div>
 
-<div id="calendar">
-    <div style="height:800px;">
-        <calendar-md id="calendar-demo"
-                     flex layout layout-fill
-                     calendar-direction="direction"
-                     on-prev-month="prevMonth"
-                     on-next-month="nextMonth"
-                     on-day-click="dayClick"
-                     title-format="'MMMM y'"
-                     ng-model='selectedDate'
-                     day-format="dayFormat"
-                     day-label-format="'EEE'"
-                     day-label-tooltip-format="'EEEE'"
-                     day-tooltip-format="'fullDate'"
-                     week-starts-on="weekStartsOn"
-                     start-Date-of-month="1"
-                     no-of-days="30"
-                     tooltips="true"
-                     day-content="setDayContent"
-                     disable-future-selection="disableFutureDates"></calendar-md>
-    </div>
-
+<div style="width: 100%; margin: 100px 0 0px 100px;display: inline-block; position: static;">
+    <crmcalendar selected="day" firstday="firstday"></crmcalendar>
 </div>
+
+<!--<div id="calendar">-->
+    <!--<div style="height:800px;">-->
+        <!--<calendar-md id="calendar-demo"-->
+                     <!--flex layout layout-fill-->
+                     <!--calendar-direction="direction"-->
+                     <!--on-prev-month="prevMonth"-->
+                     <!--on-next-month="nextMonth"-->
+                     <!--on-day-click="dayClick"-->
+                     <!--title-format="'MMMM y'"-->
+                     <!--ng-model='selectedDate'-->
+                     <!--day-format="dayFormat"-->
+                     <!--day-label-format="'EEE'"-->
+                     <!--day-label-tooltip-format="'EEEE'"-->
+                     <!--day-tooltip-format="'fullDate'"-->
+                     <!--week-starts-on="weekStartsOn"-->
+                     <!--start-Date-of-month="1"-->
+                     <!--no-of-days="30"-->
+                     <!--tooltips="true"-->
+                     <!--day-content="setDayContent"-->
+                     <!--disable-future-selection="disableFutureDates"></calendar-md>-->
+    <!--</div>-->
+
+<!--</div>-->
 
 

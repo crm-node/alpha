@@ -2,6 +2,12 @@
  * Created by Mark Sarukhanov on 06.09.2016.
  */
 
+Date.prototype.addDays = function(days) {
+    var dat = new Date(this.valueOf())
+    dat.setDate(dat.getDate() + days);
+    return dat;
+}
+
 module.exports = {
 
     daysInMonth: function (now) {
@@ -22,7 +28,7 @@ module.exports = {
             return res.send({error: true, message: "Request Error or No data", error_code: 'data_null_1'}).end();
         }
         else {
-            if(additionalFunc) additionalFunc();
+            //if(additionalFunc) additionalFunc();
             switch(typeof resp) {
                 case 'object' :
                     res.send({error: false, message: 'Success', data: _this.parseEachAndGiveId(resp)}).end();
@@ -55,6 +61,20 @@ module.exports = {
         var now = new Date();
         now = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds());
         return now;
+    },
+
+    formattedDate : function(date) {
+        var event_day = new Date(date);
+        return "" + event_day.getDate() + "-" + (event_day.getMonth() + 1) + "-" + event_day.getFullYear();
+    },
+
+    getDatesBetween :function(startDate, stopDate) {
+        var dateArray = [],currentDate = startDate;
+        while (currentDate <= stopDate) {
+            dateArray.push(this.formattedDate(currentDate));
+            currentDate = currentDate.addDays(1);
+        }
+        return dateArray;
     }
 
 };
