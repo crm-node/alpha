@@ -2,7 +2,8 @@
  * Created by mmalkav on 08.04.2016.
  */
 
-var express = require('express');
+global.express = require('express');
+global.router = express.Router();
 var fs = require('fs');
 var app = express();
 var http = require('http');
@@ -28,6 +29,7 @@ client.on("error", function (err) {
     console.error("Error " + err);
 });
 
+app.use('/', router);
 app.use(express.static('' + __dirname + '/files'));
 app.set('views',[''+__dirname + '/files/html', ''+__dirname + '/files/html/botView/']);
 app.engine('html', require('ejs').renderFile);
@@ -35,6 +37,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use('/favicon.ico', express.static('./files/img/favicon.ico'));
 app.set('json spaces', 2);
+
 
 global.serverEvents = require('./middleware/serverEvents.js');
 serverEvents.init();
@@ -48,7 +51,7 @@ server.listen(port || 999, function() {
     console.log("Server listening on " + port);
 });
 
-require('./middleware/routes.js')(app, client);
+require('./middleware/routes.js')(app, router, client);
 
 global.io = require('socket.io')(server);
 
@@ -97,27 +100,42 @@ io.on('connection', function(client) {
 //         console.log(userData)
 //     }
 // });
-//client.flushdb( function (err, succeeded) {
-//
-//});
-//var fd = {name : 'Dev'};
-// var fd = {customer : 'admin', login : 'mark', password : 'q', id: 1};
-// client.hset('devusers:', 'mark', JSON.stringify(fd), function (err, userData) {
+// client.hgetall('token:', function (err, userData) {
 //     if (err) console.error(err);
-//     fd = {customer: 'admin', login: 'edo', password: 'q', id: 2};
-//     client.hset('devusers:', 'edo', JSON.stringify(fd), function (err, userData) {
+//     else {
+//         console.log("token",userData)
+//     }
+// });
+
+// client.flushdb( function (err, succeeded) {
+//
+// });
+// //var fd = {name : 'Dev'};
+// var fd = {customer : 'admin', login : 'msarukhanov@gmail.com', password : 'q', id: 'msarukhanov@gmail.com'};
+// client.hset('devusers:', fd.login, JSON.stringify(fd), function (err, userData) {
+//     if (err) console.error(err);
+//     fd = {customer: 'admin', login: 'esimonyan2014@gmail.com', password: 'q', id: 'esimonyan2014@gmail.com'};
+//     client.hset('devusers:', fd.login, JSON.stringify(fd), function (err, userData) {
 //         if (err) console.log(err);
 //     });
 // });
+// var fd = {name : 'Dev'};
 // client.hset('customer:', 'admin', JSON.stringify(fd), function (err, customerData) {
-//    if(err) console.error(err);
-//    fd = {name : 'Mark', status : 0, customer : 'admin', login : 'mark', password : 'q'};
-//    client.hset('customer:admin:users:', '1', JSON.stringify(fd), function (err, userData) {
-//        if(err) console.error(err);
-//        fd = {name : 'Edo', status : 0, customer : 'admin', login : 'edo', password : 'q'};
-//        client.hset('customer:admin:users:', '2', JSON.stringify(fd), function (err, userData) {
-//            if(err) console.log(err);
-//    });
+//     if (err) console.error(err);
+//     fd = {name: 'Mark', status: 0, customer: 'admin', login: 'msarukhanov@gmail.com', password: 'q'};
+//     client.hset('customer:admin:users:', fd.login, JSON.stringify(fd), function (err, userData) {
+//         if (err) console.error(err);
+//         fd = {name: 'Edo', status: 0, customer: 'admin', login: 'esimonyan2014@gmail.com', password: 'q'};
+//         client.hset('customer:admin:users:', fd.login, JSON.stringify(fd), function (err, userData) {
+//             if (err) console.log(err);
+//         });
+//     });
+// });
+// client.set('customer:' + 'admin' + ':config', JSON.stringify({
+//     customers : true,
+//     statistics : true
+// }),function(err, resp){
+//     console.log(err, resp)
 // });
 //            fd = {
 //                fields : [

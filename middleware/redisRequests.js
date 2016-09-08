@@ -7,6 +7,7 @@ var  multiR = client.multi();
 module.exports = {
 
     setUser : function(id, data, callback) {
+        console.log(id);
         client.set('token:' + id, JSON.stringify(data), callback);
     },
 
@@ -34,6 +35,9 @@ module.exports = {
                 break;
             case 'del':
                 client.hdel('customer:', customer_id, callback);
+                break;
+            case 'config':
+                client.get('customer:' + customer_id + ':config', callback);
                 break;
         }
     },

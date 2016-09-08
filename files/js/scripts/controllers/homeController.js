@@ -18,9 +18,9 @@ app.controller('homeController', ['$http', '$scope', '$rootScope', 'socket',
                 }
             });
         };
-        socket.on('upcoming event added' + $rootScope.userInfo.customer, function (event) {
-            $scope.upcomingEvents.push(event);
-        });
+        // socket.on('upcoming event added' + $rootScope.userInfo.customer, function (event) {
+        //     $scope.upcomingEvents.push(event);
+        // });
         
         
     }

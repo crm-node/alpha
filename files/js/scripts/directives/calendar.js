@@ -88,12 +88,13 @@ app.directive("crmcalendar", ['$rootScope', function ($rootScope) {
                         scope.eventsHtml[""+k] = generateStringForDate(events);
                     });
                     console.log(scope.eventsHtml);
-                    _buildMonth(scope, start, scope.month, scope.firstday);
+
                 }
                 else {
                     scope.error = data.error;
                     scope.message = data.message;
                 }
+                _buildMonth(scope, start, scope.month, scope.firstday);
             });
 
             scope.select = function (day) {

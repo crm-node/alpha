@@ -4,10 +4,23 @@
 app.controller('mainController', ['$http', '$routeParams', '$scope', '$rootScope', '$sce', '$cookies', '$location', 'socket','$timeout',
     function($http, $routeParams, $scope, $rootScope, $sce, $cookies, $location, socket,$timeout) {
 
+        var token = $cookies.get('token');
+        console.log(location)
+       // if(!token && location.pathname!="/login") location.pathname="/login";
+
+        $('.button-collapse').sideNav({
+                menuWidth: 200, // Default is 240
+                edge: 'left', // Choose the horizontal origin
+                closeOnClick: true // Closes side-nav on <a> clicks, useful for Angular/Meteor
+            }
+        );
+        $('.collapsible').collapsible({
+            accordion : false // A setting that changes the collapsible behavior to expandable instead of the default accordion style
+        });
         $rootScope.isLoggedIn = false;
         $scope.login = {};
 
-        var token = $cookies.get('token');
+
         $rootScope.upcomingEvent = {};
 
         function getUserInfo(token) {
@@ -43,7 +56,7 @@ app.controller('mainController', ['$http', '$routeParams', '$scope', '$rootScope
                 $rootScope.httpRequest("login", 'POST', formData, function (data) {
                     if (data && !data.error) {
                         console.log(data.data)
-                        var token = data.data.id;
+                        var token = data.data.login;
                         $cookies.put('token', token);
                         //getUserInfo(token);
                         location.reload();

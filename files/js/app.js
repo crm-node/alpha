@@ -7,6 +7,14 @@ app.config(['$routeProvider', '$locationProvider', '$httpProvider',
                 templateUrl: '/html/home.html',
                 controller: 'homeController'
             })
+            .when("/login", {
+                // templateUrl: '/html/home.html',
+                // controller: 'homeController'
+            })
+            .when("/home", {
+                templateUrl: '/html/home.html',
+                controller: 'homeController'
+            })
             .when("/calendar", {
                 templateUrl: '/html/material/calendar.html',
                 controller: 'calendarController'
