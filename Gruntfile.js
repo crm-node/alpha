@@ -31,6 +31,8 @@ module.exports = function(grunt) {
                     'files/js/lib/angular-route.min.js',
                     'files/js/lib/angular-sanitize.min.js',
                     'files/js/lib/angular-cookies.min.js',
+                    'node_modules/ng-file-upload/dist/ng-file-upload.min.js',
+                    'node_modules/ng-file-upload/dist/ng-file-upload-shim.min.js',
                     'files/js/lib/underscore-min.js',
                     'files/js/lib/moment.min.js',
                     'files/js/lib/socket.io-client/socket.io.js',
