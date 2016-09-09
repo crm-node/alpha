@@ -87,5 +87,8 @@ app.controller('mainController', ['$http', '$routeParams', '$scope', '$rootScope
                 }
             });
         };
+
+        
+        
     }
 ]);

@@ -324,6 +324,19 @@ module.exports = function (app, router, client) {
 
 
 
+    app.post('/uploadFile', function(req, res) {
+        uploadFile(req,res,function(err){
+            console.log(err);
+            if(err){
+                res.json({error_code:1,err_desc:err});
+                return;
+            }
+            res.json({error_code:0,err_desc:null});
+        })
+    });
+
+
+
 
     app.post('/api/getUpcomingEvents', function (req, res) {
         autorizationRequest(req.headers.authorization, res, function (userData) {

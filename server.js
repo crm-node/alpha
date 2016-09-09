@@ -8,6 +8,8 @@ var fs = require('fs');
 var app = express();
 var http = require('http');
 var bodyParser = require('body-parser');
+var multer = require('multer');
+
 
 global._ = require('underscore');
 global.request = require('request');
@@ -31,13 +33,32 @@ client.on("error", function (err) {
 
 app.use('/', router);
 app.use(express.static('' + __dirname + '/files'));
-app.set('views',[''+__dirname + '/files/html', ''+__dirname + '/files/html/botView/']);
-app.engine('html', require('ejs').renderFile);
+app.use(function(req, res, next) {
+    res.setHeader("Access-Control-Allow-Methods", "POST, PUT, OPTIONS, DELETE, GET");
+    res.header("Access-Control-Allow-Origin", "http://localhost");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+    next();
+});
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use('/favicon.ico', express.static('./files/img/favicon.ico'));
+app.set('views',[''+__dirname + '/files/html', ''+__dirname + '/files/html/botView/']);
 app.set('json spaces', 2);
+app.engine('html', require('ejs').renderFile);
 
+var storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, './uploads/')
+    },
+    filename: function (req, file, cb) {
+        var datetimestamp = Date.now();
+        cb(null, file.fieldname + '-' + datetimestamp + '.' + file.originalname.split('.')[file.originalname.split('.').length -1])
+    }
+});
+global.uploadFile = multer({ 
+    storage: storage
+}).single('file');
 
 global.serverEvents = require('./middleware/serverEvents.js');
 serverEvents.init();

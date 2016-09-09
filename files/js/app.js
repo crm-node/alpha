@@ -1,4 +1,4 @@
-var app = angular.module('crmApp', ['ngRoute', 'ngSanitize', 'ngCookies']);
+var app = angular.module('crmApp', ['ngRoute', 'ngSanitize', 'ngCookies', 'ngFileUpload']);
 
 app.config(['$routeProvider', '$locationProvider', '$httpProvider',
     function ($routeProvider, $locationProvider, $httpProvider) {
