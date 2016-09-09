@@ -16,8 +16,11 @@ module.exports = {
 
     parseEachAndGiveId: function (data) {
         _.each(data, function (item, key) {
-            data[key] = JSON.parse(item);
-            data[key].id = key;
+            if(item && item!= 'undefined' && item!='null') {
+                data[key] = JSON.parse(item);
+                data[key].id = key;
+            }
+
         });
         return data;
     },

@@ -10,16 +10,18 @@ function _removeTime(date) {
 }
 function _buildMonth(scope, start, month, firstday) {
     scope.weeks = [];
+    var daysArr = [];
     var done = false, date = start.clone(), monthIndex = date.month(), count = 0;
     while (!done) {
-        scope.weeks.push({days: _buildWeek(date.clone(), month, firstday)});
+        scope.weeks.push({days: _buildWeek(date.clone(), month, firstday, daysArr)});
         date.add(1, "w");
         done = count++ > 2 && monthIndex !== date.month();
         monthIndex = date.month();
     }
+    return daysArr;
 }
 
-function _buildWeek(date, month, firstday) {
+function _buildWeek(date, month, firstday, daysArr) {
     var days = [];
     // ====== if 1st day is monday ======
     if(firstday == "mon") date.add(1, "d");
@@ -33,6 +35,7 @@ function _buildWeek(date, month, firstday) {
             isToday: date.isSame(new Date(), "day"),
             date: date
         });
+        daysArr.push(date.format('D-M-YYYY'));
         date = date.clone();
         date.add(1, "d");
     }
@@ -48,6 +51,7 @@ function numFmt(num) {
 }
 
 function generateStringForDate(events) {
+    console.log(events)
     var data = "<div>";
     data += "<div class='event-in-day'>";
     data += "<span class='event-in-day-client'>" + events[0].clientname + "</span>";
@@ -81,18 +85,20 @@ app.directive("crmcalendar", ['$rootScope', function ($rootScope) {
             _removeDayTime(start.day(0));
             scope.eventList = {};
             scope.eventsHtml = {};
-            $rootScope.httpRequest("getAllEvents", 'POST', {}, function (data) {
+            var daysArr =_buildMonth(scope, start, scope.month, scope.firstday);
+            console.log(daysArr)
+            $rootScope.httpRequest("getEventsByDays", 'POST', {dates : daysArr}, function (data) {
                 if(!data.error) {
                     scope.eventList = data.data;
                     _.each(data.data, function (events, k) {
-                        scope.eventsHtml[""+k] = generateStringForDate(events);
+                       // scope.eventsHtml[""+k] = generateStringForDate(events);
                     });
                 }
                 else {
                     scope.error = data.error;
                     scope.message = data.message;
                 }
-                _buildMonth(scope, start, scope.month, scope.firstday);
+
             });
 
             scope.select = function (day) {

@@ -102,12 +102,12 @@ module.exports = {
         }
     },
 
-    transactions : function (customer_id, what, data, date, callback) {
+    transactions : function (customer_id, what, date, data, callback) {
         switch (what) {
             case 'add':
                 multiR.hset('customer:' + customer_id + ':transactions:'  , data.id, JSON.stringify(data));
-                multiR.hset('customer:' + customer_id + ':user:transactions:' + data.user_id  , data.id, '');
-                multiR.hset('customer:' + customer_id + ':daily:transactions:' + date, data.id, '');
+                multiR.hset('customer:' + customer_id + ':user:transactions:' + data.doctor_id  , data.id, data.id);
+                multiR.hset('customer:' + customer_id + ':daily:transactions:' + date, data.id, data.id);
                 if(data.client_id) multiR.hset('customer:' + customer_id + ':client:' + data.client_id +':transactions:', data.id, '');
                 multiR.exec(callback);
                 break;
@@ -142,9 +142,12 @@ module.exports = {
     events : function (customer_id, what, date, data, callback) {
         switch (what) {
             case 'add':
+                console.log('customer:' + customer_id + ':events:'  , data.id, JSON.stringify(data));
+                console.log('customer:' + customer_id + ':user:events:' + data.doctor_id  , data.id, data.id);
+                console.log('customer:' + customer_id + ':daily:events:' + date, data.id, data.id);
                 multiR.hset('customer:' + customer_id + ':events:'  , data.id, JSON.stringify(data));
-                multiR.hset('customer:' + customer_id + ':user:events:' + data.user_id  , data.id, '');
-                multiR.hset('customer:' + customer_id + ':daily:events:' + date, data.id, '');
+                multiR.hset('customer:' + customer_id + ':user:events:' + data.user_id  , data.id, data.id);
+                multiR.hset('customer:' + customer_id + ':daily:events:' + date, data.id, data.id);
                 if(data.client_id) multiR.hset('customer:' + customer_id + ':client:' + data.client_id +':events:', data.id, '');
                 multiR.exec(callback);
                 break;
@@ -152,7 +155,7 @@ module.exports = {
                 client.hset('customer:' + customer_id + ':events:', "" + data.transaction_id, "" + JSON.stringify(data.transaction_info), callback);
                 break;
             case 'get-by-customer':
-                client.hgetall('customer:' + customer_id + ':event:', callback);
+                client.hgetall('customer:' + customer_id + ':events:', callback);
                 break;
             case 'get-by-users':
                 client.hmget('customer:' + customer_id + ':user:events:', data.users, callback);
@@ -161,7 +164,11 @@ module.exports = {
                 client.hget('customer:' + customer_id + ':client:' + data + ':events:', callback);
                 break;
             case 'get-by-date':
-                client.hmget('customer:' + customer_id + ':daily:events:', data, callback);
+                //client.hmget('customer:' + customer_id + ':daily:events:', data, callback);
+                _.each(data, function(item){
+                    multiR.hgetall('customer:admin:daily:events:' + item);
+                });
+                multiR.exec(callback);
                 break;
             case 'get-by-id':
                 client.hget('customer:' + customer_id + ':events:', data, callback);

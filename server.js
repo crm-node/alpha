@@ -107,10 +107,6 @@ io.on('connection', function(client) {
 // });
 
 
-
-
-
-
 //var redis = require('redis');
 //global.client = redis.createClient();
 
@@ -127,47 +123,49 @@ io.on('connection', function(client) {
 //     }
 // });
 
-// client.flushdb( function (err, succeeded) {
-//
-// });
-// //var fd = {name : 'Dev'};
-// var fd = {customer : 'admin', login : 'msarukhanov@gmail.com', password : 'q', id: 'msarukhanov@gmail.com'};
-// client.hset('devusers:', fd.login, JSON.stringify(fd), function (err, userData) {
-//     if (err) console.error(err);
-//     fd = {customer: 'admin', login: 'esimonyan2014@gmail.com', password: 'q', id: 'esimonyan2014@gmail.com'};
-//     client.hset('devusers:', fd.login, JSON.stringify(fd), function (err, userData) {
-//         if (err) console.log(err);
-//     });
-// });
-// var fd = {name : 'Dev'};
-// client.hset('customer:', 'admin', JSON.stringify(fd), function (err, customerData) {
-//     if (err) console.error(err);
-//     fd = {name: 'Mark', status: 0, customer: 'admin', login: 'msarukhanov@gmail.com', password: 'q'};
-//     client.hset('customer:admin:users:', fd.login, JSON.stringify(fd), function (err, userData) {
-//         if (err) console.error(err);
-//         fd = {name: 'Edo', status: 0, customer: 'admin', login: 'esimonyan2014@gmail.com', password: 'q'};
-//         client.hset('customer:admin:users:', fd.login, JSON.stringify(fd), function (err, userData) {
-//             if (err) console.log(err);
-//         });
-//     });
-// });
-// client.set('customer:' + 'admin' + ':config', JSON.stringify({
-//     customers : true,
-//     statistics : true
-// }),function(err, resp){
-//     console.log(err, resp)
-// });
-//            fd = {
-//                fields : [
-//                    {title : 'First Name', field : 'FirstName', type : 'text'},
-//                    {title : 'Last Name', field : 'LastName', type : 'text'},
-//                    {title : 'Last Visit', field : 'LastVisit', type : 'datetime-local'}
-//                ],
-//                status : 0,
-//                customer : 'admin'
-//            };
-//            client.hset('customer:admin:clients:', 'schema', JSON.stringify(fd), function (err, userData) {
-//                if (err) console.log(err);
+ //client.flushdb( function (err, succeeded) {
+ //    //var fd = {name : 'Dev'};
+ //    var fd = {customer : 'admin', login : 'msarukhanov@gmail.com', password : 'q', id: 'msarukhanov@gmail.com'};
+ //    client.hset('devusers:', fd.login, JSON.stringify(fd), function (err, userData) {
+ //        if (err) console.error(err);
+ //        fd = {customer: 'admin', login: 'esimonyan2014@gmail.com', password: 'q', id: 'esimonyan2014@gmail.com'};
+ //        client.hset('devusers:', fd.login, JSON.stringify(fd), function (err, userData) {
+ //            if (err) console.log(err);
+ //        });
+ //    });
+ //    var fd = {name : 'Dev'};
+ //    client.hset('customer:', 'admin', JSON.stringify(fd), function (err, customerData) {
+ //        if (err) console.error(err);
+ //        fd = {name: 'Mark', status: 0, customer: 'admin', login: 'msarukhanov@gmail.com', password: 'q'};
+ //        client.hset('customer:admin:users:', fd.login, JSON.stringify(fd), function (err, userData) {
+ //            if (err) console.error(err);
+ //            fd = {name: 'Edo', status: 0, customer: 'admin', login: 'esimonyan2014@gmail.com', password: 'q'};
+ //            client.hset('customer:admin:users:', fd.login, JSON.stringify(fd), function (err, userData) {
+ //                if (err) console.log(err);
+ //            });
+ //        });
+ //    });
+ //    client.set('customer:' + 'admin' + ':config', JSON.stringify({
+ //        customers : true,
+ //        statistics : true
+ //    }),function(err, resp){
+ //        console.log(err, resp)
+ //    });
+ //    var fd = {
+ //        fields : [
+ //            {title : 'First Name', field : 'FirstName', type : 'text'},
+ //            {title : 'Last Name', field : 'LastName', type : 'text'},
+ //            {title : 'Last Visit', field : 'LastVisit', type : 'datetime-local'}
+ //        ],
+ //        status : 0,
+ //        customer : 'admin'
+ //    };
+ //    client.hset('customer:admin:clients:', 'schema', JSON.stringify(fd), function (err, userData) {
+ //        if (err) console.log(err);
+ //    });
+ //});
+
+
 //                fd = {FirstName: 'Abul', LastName: 'Azizyan', LastVisit: '15:37 11.11.2015'};
 //                client.hset('customer:admin:clients:', '1', JSON.stringify(fd), function (err, userData) {
 //                    if (err) console.log(err);

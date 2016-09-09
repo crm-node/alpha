@@ -224,6 +224,15 @@ module.exports = function (app, router, client) {
         });
     });
 
+    app.post('/api/getEventsByDays', function (req, res) {
+        autorizationRequest(req.headers.authorization, res, function (userData) {
+            redisRequests.events(userData.customer, 'get-by-date', '', req.body.dates, function(err, resp) {
+                console.log(resp);
+                helper.parseResponse(err, resp, res)
+            });
+        });
+    });
+
     app.post('/api/editEvent', function (req, res) {
         autorizationRequest(req.headers.authorization, res, function (userData) {
             if(userData && req.body) {
@@ -242,6 +251,7 @@ module.exports = function (app, router, client) {
             if(userData && req.body) {
                 req.body.dt = new Date();
                 req.body.id = "" + uuid.v4();
+                console.log(req.body, userData)
                 redisRequests.events(userData.customer, 'add', helper.formattedDate(req.body.dt), req.body, function(err, resp) {
                     serverEvents.updateUpcomingEventsForCustomer(userData.customer, function(){
                         helper.parseResponse(err, resp, res)

@@ -60,19 +60,19 @@ app.controller("calendarController", ['$http', '$scope', '$rootScope', '$filter'
         };
         $scope.getUsers();
 
-        $scope.getEvents = function() {
-            $rootScope.httpRequest("getAllEvents", 'POST', {
-                date : new Date()
-            }, function (data) {
-                if(!data.error) {
-                    $scope.eventList = data.data;
-                }
-                else {
-                    $scope.error = data.error;
-                    $scope.message = data.message;
-                }
-            });
-        };
+        //$scope.getEvents = function() {
+        //    $rootScope.httpRequest("getAllEvents", 'POST', {
+        //        date : new Date()
+        //    }, function (data) {
+        //        if(!data.error) {
+        //            $scope.eventList = data.data;
+        //        }
+        //        else {
+        //            $scope.error = data.error;
+        //            $scope.message = data.message;
+        //        }
+        //    });
+        //};
 
         $scope.getUpcomingEvents = function() {
             $rootScope.httpRequest("getUpcomingEvents", 'POST', {}, function (data) {
@@ -110,24 +110,24 @@ app.controller("calendarController", ['$http', '$scope', '$rootScope', '$filter'
                     doctor_id : JSON.parse($scope.eventToAdd.doctor).id,
                     dt : $scope.eventToAdd.dt
                 };
-                $rootScope.httpRequest("addEvent", 'POST', {event : formData}, function (data) {
+                $rootScope.httpRequest("addEvent", 'POST', formData, function (data) {
                     if(!data.error) {
-                        $rootScope.httpRequest("getEvents", 'POST', {
-                            dt : $scope.eventToAdd.dt
-                        }, function (data) {
-                            if(!data.error) {
-                                $scope.daysEventsList = data.data;
-                                $scope.eventToAdd = {
-                                    dt : new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate(), new Date().getHours(), new Date().getMinutes())
-                                };
-                                $scope.getEvents();
-                                $('#addEventModal').modal('hide');
-                            }
-                            else {
-                                $scope.error = data.error;
-                                $scope.message = data.message;
-                            }
-                        });
+                        //$rootScope.httpRequest("getEvents", 'POST', {
+                        //    dt : $scope.eventToAdd.dt
+                        //}, function (data) {
+                        //    if(data && !data.error) {
+                        //        $scope.daysEventsList = data.data;
+                        //        $scope.eventToAdd = {
+                        //            dt : new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate(), new Date().getHours(), new Date().getMinutes())
+                        //        };
+                        //        //$scope.getEvents();
+                        //        //$('#addEventModal').modal('hide');
+                        //    }
+                        //    else {
+                        //        $scope.error = data.error;
+                        //        $scope.message = data.message;
+                        //    }
+                        //});
 
                     }
                     else {
