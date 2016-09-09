@@ -46,7 +46,7 @@
     outline: none;
 }
 #clients {
-    padding: 80px 30px 30px;
+    padding: 30px 30px 30px;
 }
 #clients .clients-top {
     padding-bottom: 15px;
@@ -83,4 +83,8 @@
 .event-in-day-title , .event-in-day-time {
     width: 50%;
     float: left;
+}
+
+#dropdown-user1 {
+    top: 64px !important;
 }

@@ -63,7 +63,6 @@ app.config(['$routeProvider', '$locationProvider', '$httpProvider',
                     config.headers = config.headers || {};
                     config.timeout = 15000;
                     var token = $cookies.get('token');
-                    console.log(token);
                     if (token) {
                         config.headers.Authorization = token;
                     }

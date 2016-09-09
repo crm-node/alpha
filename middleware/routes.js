@@ -220,39 +220,17 @@ module.exports = function (app, router, client) {
 
     app.post('/api/getEvents', function (req, res) {
         autorizationRequest(req.headers.authorization, res, function (userData) {
-            var date = "" + new Date(req.body.dt).getDate() + "-" + (new Date(req.body.dt).getMonth() + 1) + "-" + new Date(req.body.dt).getFullYear();
-            redisRequests.events(userData.customer, 'get', date, {}, function(err, resp) {helper.parseResponse(err, resp, res)});
+            redisRequests.events(userData.customer, 'get', helper.formattedDate(req.body.dt), {}, function(err, resp) {helper.parseResponse(err, resp, res)});
         });
     });
 
     app.post('/api/editEvent', function (req, res) {
         autorizationRequest(req.headers.authorization, res, function (userData) {
-            var event_day = new Date(req.body.event.dt);
-            var date = "" + event_day.getDate() + "-" + (event_day.getMonth() + 1) + "-" + event_day.getFullYear();
-            if(userData && req.body.event) {
-                redisRequests.events(userData.customer, 'get', date, {}, function (err, eventsData) {
-                    if(err) {
-                        res.send({error: true, message: 'Events request error', error_code: 'cli_1'}).end();
-                    }
-                    else {
-                        if(eventsData != null && eventsData != "[]") {eventsData = JSON.parse(eventsData);}
-                        else eventsData = [];
-                        _.each(eventsData, function(event, key){
-                            if(event.id == req.body.event.id) {
-                                eventsData[key] = req.body.event;
-                            }
-                        });
-                        redisRequests.events(userData.customer, 'add', date, {date : req.body.event.dt, events : eventsData}, function (err, eventData) {
-                            if(err) {
-                                res.send({error: true, message: 'Events request error', error_code: 'cli_1'}).end();
-                            }
-                            else {
-                                serverEvents.updateUpcomingEventsForCustomer(userData.customer, function(){
-                                    res.send({error: false, message: 'Success', data: JSON.parse(eventData)}).end();
-                                });
-                            }
-                        })
-                    }
+            if(userData && req.body) {
+                redisRequests.events(userData.customer, 'edit', helper.formattedDate(req.body.dt), req.body, function(err, resp) {
+                    serverEvents.updateUpcomingEventsForCustomer(userData.customer, function(){
+                        helper.parseResponse(err, resp, res)
+                    });
                 });
             }
             else res.send({error: true, message: 'Events request error', error_code: 'cli_1'}).end();
@@ -261,35 +239,13 @@ module.exports = function (app, router, client) {
 
     app.post('/api/addEvent', function (req, res) {
         autorizationRequest(req.headers.authorization, res, function (userData) {
-            var event_day = new Date(req.body.event.dt);
-            var date = "" + event_day.getDate() + "-" + (event_day.getMonth() + 1) + "-" + event_day.getFullYear();
-            if(userData && req.body.event) {
-                redisRequests.events(userData.customer, 'get', date, {}, function (err, eventsData) {
-                    if(err) {
-                        res.send({error: true, message: 'Events request error', error_code: 'cli_1'}).end();
-                    }
-                    else {
-                        if(eventsData != null && eventsData != "[]") {eventsData = JSON.parse(eventsData);}
-                        else eventsData = [];
-                        req.body.event.id = "" + uuid.v4();
-                        eventsData.push(req.body.event);
-                        redisRequests.events(userData.customer, 'add', date, {date : req.body.event.dt, events : eventsData}, function (err, eventData) {
-                            if(err) {
-                                res.send({error: true, message: 'Events request error', error_code: 'cli_1'}).end();
-                            }
-                            else {
-                                io.emit('event added' + userData.customer, req.body.event);
-                                var _now = new Date();
-                                if(_now.getDate() == event_day.getDate() && _now.getMonth() == event_day.getMonth()
-                                    && _now.getFullYear() == event_day.getFullYear() && _now < event_day) {
-                                    io.emit('upcoming event added' + userData.customer, req.body.event);
-                                }
-                                serverEvents.updateUpcomingEventsForCustomer(userData.customer, function(){
-                                    res.send({error: false, message: 'Success', data: JSON.parse(eventData)}).end();
-                                });
-                            }
-                        })
-                    }
+            if(userData && req.body) {
+                req.body.dt = new Date();
+                req.body.id = "" + uuid.v4();
+                redisRequests.events(userData.customer, 'add', helper.formattedDate(req.body.dt), req.body, function(err, resp) {
+                    serverEvents.updateUpcomingEventsForCustomer(userData.customer, function(){
+                        helper.parseResponse(err, resp, res)
+                    });
                 });
             }
             else res.send({error: true, message: 'Events request error', error_code: 'cli_1'}).end();
@@ -298,50 +254,10 @@ module.exports = function (app, router, client) {
 
     app.post('/api/delEvent', function (req, res) {
         autorizationRequest(req.headers.authorization, res, function (userData) {
-            var event_day = new Date(req.body.event.dt);
-            var date = "" + event_day.getDate() + "-" + (event_day.getMonth() + 1) + "-" + event_day.getFullYear();
-            if(userData && req.body.event) {
-                redisRequests.events(userData.customer, 'get', date, {}, function (err, eventsData) {
-                    if(err) {
-                        res.send({error: true, message: 'Events request error', error_code: 'cli_1'}).end();
-                    }
-                    else {
-                        if(eventsData != null && eventsData != "[]") {eventsData = JSON.parse(eventsData);}
-                        else eventsData = [];
-                        eventsData = _.filter(eventsData, function(event, key){
-                            return event.id != req.body.event.id;
-                        });
-                        redisRequests.events(userData.customer, 'add', date, {date : req.body.event.dt, events : eventsData}, function (err, eventData) {
-                            if(err) {
-                                res.send({error: true, message: 'Events request error', error_code: 'cli_1'}).end();
-                            }
-                            else {
-                                serverEvents.updateUpcomingEventsForCustomer(userData.customer, function(){
-                                    res.send({error: false, message: 'Success', data: JSON.parse(eventData)}).end();
-                                });
-                            }
-                        })
-                    }
-                });
+            if(userData && req.body) {
+                redisRequests.events(userData.customer, 'del', helper.formattedDate(req.body.dt), req.body, function(err, resp) {helper.parseResponse(err, resp, res)})
             }
-            else res.send({error: true, message: 'Events request error', error_code: 'cli_1'}).end();
-        });
-    });
-
-    app.post('/api/delEventsDay', function (req, res) {
-        autorizationRequest(req.headers.authorization, res, function (userData) {
-            var event_day = new Date(req.body.event.dt);
-            var date = "" + event_day.getDate() + "-" + (event_day.getMonth() + 1) + "-" + event_day.getFullYear();
-            redisRequests.events(userData.customer, 'del', date, {}, function (err, eventData) {
-                if(err) {
-                    res.send({error: true, message: 'Events request error', error_code: 'cli_1'}).end();
-                }
-                else {
-                    serverEvents.updateUpcomingEventsForCustomer(userData.customer, function(){
-                        res.send({error: false, message: 'Success', data: JSON.parse(eventData)}).end();
-                    });
-                }
-            });
+            else res.send({error: true, message: 'Transactions request error', error_code: 'cli_1'}).end();
         });
     });
 
@@ -379,7 +295,10 @@ module.exports = function (app, router, client) {
 
     app.post('/api/editTransaction', function (req, res) {
         autorizationRequest(req.headers.authorization, res, function (userData) {
-            redisRequests.transactions(userData.customer, 'edit', '', req.body.transaction_info, function(err, resp) {helper.parseResponse(err, resp, res)});
+            if(userData && req.body) {
+                redisRequests.transactions(userData.customer, 'edit', '', req.body.transaction_info, function(err, resp) {helper.parseResponse(err, resp, res)});
+            }
+            else res.send({error: true, message: 'Transactions request error', error_code: 'cli_1'}).end();
         });
     });
 
@@ -397,7 +316,7 @@ module.exports = function (app, router, client) {
     app.post('/api/delTransaction', function (req, res) {
         autorizationRequest(req.headers.authorization, res, function (userData) {
             if(userData && req.body) {
-                redisRequests.transactions(userData.customer, 'del', "" + helper.formattedDate(req.body.dt), req.body, function(err, resp) {helper.parseResponse(err, resp, res)})
+                redisRequests.transactions(userData.customer, 'del', helper.formattedDate(req.body.dt), req.body, function(err, resp) {helper.parseResponse(err, resp, res)})
             }
             else res.send({error: true, message: 'Transactions request error', error_code: 'cli_1'}).end();
         });

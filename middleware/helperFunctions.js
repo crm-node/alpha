@@ -24,8 +24,11 @@ module.exports = {
 
     parseResponse : function(err, resp, res, additionalFunc) {
         var _this = this;
-        if(err || !resp || resp.error || resp == 'null') {
+        if(err || !resp || resp.error) {
             return res.send({error: true, message: "Request Error or No data", error_code: 'data_null_1'}).end();
+        }
+        else if(resp == 'null') {
+            return res.send({error: false, message: "No Data", data: []}).end();
         }
         else {
             //if(additionalFunc) additionalFunc();

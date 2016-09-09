@@ -5,7 +5,6 @@ app.controller('mainController', ['$http', '$routeParams', '$scope', '$rootScope
     function($http, $routeParams, $scope, $rootScope, $sce, $cookies, $location, socket,$timeout) {
 
         var token = $cookies.get('token');
-        console.log(location)
        // if(!token && location.pathname!="/login") location.pathname="/login";
 
         $('.button-collapse').sideNav({
@@ -14,9 +13,6 @@ app.controller('mainController', ['$http', '$routeParams', '$scope', '$rootScope
                 closeOnClick: true // Closes side-nav on <a> clicks, useful for Angular/Meteor
             }
         );
-        $('.collapsible').collapsible({
-            accordion : false // A setting that changes the collapsible behavior to expandable instead of the default accordion style
-        });
         $rootScope.isLoggedIn = false;
         $scope.login = {};
 
@@ -26,13 +22,18 @@ app.controller('mainController', ['$http', '$routeParams', '$scope', '$rootScope
         function getUserInfo(token) {
             if (token) {
                 $rootScope.getUserInfo(function (data) {
-                    console.log(data);
                     if (data && !data.error && data.data) {
                         $rootScope.isLoggedIn = true;
                         $rootScope.userInfo = data.data;
                         socket.on('upcoming event' + $rootScope.userInfo.customer, function (event) {
                             $rootScope.upcomingEvent = event;
-                            $('#upcomingEventModal').modal('show');
+                            var $toastContent = $('<span class="upcoming-toast">' +
+                                '<span>Client Name : </span>' +
+                                '<span>' + $rootScope.upcomingEvent.clientname + '</span>' +
+                                '<span>Description : </span>' +
+                                '<span>' + $rootScope.upcomingEvent.description + '</span>' +
+                                '</span>');
+                            Materialize.toast($toastContent, 5000);
                         });
                     }
                     else {
@@ -44,7 +45,6 @@ app.controller('mainController', ['$http', '$routeParams', '$scope', '$rootScope
 
             }
         }
-        console.log(token)
         getUserInfo(token);
         $scope.userLogin = function () {
             if ($scope.login) {

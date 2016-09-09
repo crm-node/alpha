@@ -87,8 +87,6 @@ app.directive("crmcalendar", ['$rootScope', function ($rootScope) {
                     _.each(data.data, function (events, k) {
                         scope.eventsHtml[""+k] = generateStringForDate(events);
                     });
-                    console.log(scope.eventsHtml);
-
                 }
                 else {
                     scope.error = data.error;
@@ -105,14 +103,16 @@ app.directive("crmcalendar", ['$rootScope', function ($rootScope) {
                 var next = scope.month.clone();
                 _removeDayTime(next.month(next.month() + 1)).date(1);
                 scope.month.month(scope.month.month() + 1);
-                _buildMonth(scope, next, scope.month);
+                _removeDayTime(next.day(0));
+                _buildMonth(scope, next, scope.month, scope.firstday);
             };
 
             scope.previous = function () {
                 var previous = scope.month.clone();
                 _removeDayTime(previous.month(previous.month() - 1).date(1));
                 scope.month.month(scope.month.month() - 1);
-                _buildMonth(scope, previous, scope.month);
+                _removeDayTime(previous.day(0));
+                _buildMonth(scope, previous, scope.month, scope.firstday);
             };
         }
     };
