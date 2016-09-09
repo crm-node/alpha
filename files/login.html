@@ -26,34 +26,69 @@
 </head>
 
 <body>
+<!--<div class="container">-->
+    <!--<div class="row">-->
+        <!--<div class="col-xs-6 col-xs-offset-3 col-md-5 col-md-offset-2.5 col-lg-4 col-lg-offset-4">-->
+            <!--<div class="login-panel panel panel-default">-->
+                <!--<div class="panel-heading">-->
+                    <!--<h3 class="panel-title">Login</h3>-->
+                    <!--<label ng-show="error" class="text-danger">{{message}}</label>-->
+                <!--</div>-->
+                <!--<div class="panel-body login-body">-->
+                    <!--<form role="form" name="myForm">-->
+                        <!--<fieldset>-->
+                            <!--<div class="form-group">-->
+                                <!--<input ng-model="login.username" required class="form-control" placeholder="Username" name="username" type="text">-->
+                            <!--</div>-->
+                            <!--<div class="form-group">-->
+                                <!--<input ng-model="login.password" required class="form-control" placeholder="Password" name="password" type="password" value="">-->
+                            <!--</div>-->
+                            <!--<button ng-click="userLogin()" ng-disabled="myForm.username.$dirty && myForm.username.$invalid ||-->
+  <!--myForm.password.$dirty && myForm.password.$invalid" type="submit" class="btn btn-lg btn-success btn-block">Login-->
+                            <!--</button>-->
+                        <!--</fieldset>-->
+                    <!--</form>-->
+                <!--</div>-->
+            <!--</div>-->
+        <!--</div>-->
+    <!--</div>-->
+<!--</div>-->
+
 <div class="container">
     <div class="row">
-        <div class="col-xs-6 col-xs-offset-3 col-md-5 col-md-offset-2.5 col-lg-4 col-lg-offset-4">
-            <div class="login-panel panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">Login</h3>
-                    <label ng-show="error" class="text-danger">{{message}}</label>
-                </div>
-                <div class="panel-body login-body">
-                    <form role="form" name="myForm">
-                        <fieldset>
-                            <div class="form-group">
-                                <input ng-model="login.username" required class="form-control" placeholder="Username" name="username" type="text">
+        <div class="col s12 m6 offset-m3 login-panel">
+            <div class="card white">
+                <div class="card-content">
+                    <span class="card-title teal-text lighten-1">Login</span>
+                    <div class="row">
+                        <form class="col s12 grey-text" name="myForm">
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <input id="username" type="text" class="validate" required name="username" ng-model="login.username">
+                                    <label for="username">Username</label>
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <input ng-model="login.password" required class="form-control" placeholder="Password" name="password" type="password" value="">
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <input id="password" type="password" class="validate" required name="password" ng-model="login.password">
+                                    <label for="password">Password</label>
+                                </div>
                             </div>
-                            <button ng-click="userLogin()" ng-disabled="myForm.username.$dirty && myForm.username.$invalid ||
-  myForm.password.$dirty && myForm.password.$invalid" type="submit" class="btn btn-lg btn-success btn-block">Login
-                            </button>
-                        </fieldset>
-                    </form>
+                            <p class="red-text text-darken-2">{{message}}</p>
+                            <div class="row">
+                                <div class="input-field col s10 m10 l6">
+                                    <button class="btn waves-effect waves-light" type="submit" ng-click="userLogin()" ng-disabled="myForm.$invalid">Login
+                                        <i class="material-icons right">send</i>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
 </body>
 
 </html>
