@@ -3,7 +3,11 @@
  */
 app.controller('clientsController', ['$http', '$scope', '$rootScope',
     function($http, $scope, $rootScope) {
-        $('.modal-trigger').leanModal();
+        $('.modal-trigger').leanModal({
+            ready: function() {
+                $('select').material_select()
+            }
+        });
 
         $scope.clientToAdd = {};
         $scope.clientList = [];

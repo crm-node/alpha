@@ -3,7 +3,11 @@
  */
 app.controller('usersController', ['$http', '$scope', '$rootScope',
     function($http, $scope, $rootScope) {
-
+        $('.modal-trigger').leanModal({
+            ready: function() {
+                $('select').material_select()
+            }
+        });
         $scope.userToAdd = {};
         $scope.userList = [];
         $scope.userToEdit = {};
