@@ -3,6 +3,7 @@
  */
 var uuid = require('node-uuid');
 var  multiR = client.multi();
+var helper = require('./helperFunctions');
 
 module.exports = {
 
@@ -164,11 +165,21 @@ module.exports = {
                 client.hget('customer:' + customer_id + ':client:' + data + ':events:', callback);
                 break;
             case 'get-by-date':
-                //client.hmget('customer:' + customer_id + ':daily:events:', data, callback);
+                //client.hmget('customer:' + customer_id + ':daily:events:', data, callback); callback
                 _.each(data, function(item){
                     multiR.hgetall('customer:admin:daily:events:' + item);
                 });
-                multiR.exec(callback);
+                multiR.exec(function(err, resp){
+                    var keys = [];
+                    _.each(resp, function(day, key){
+                        if(day && day!= 'null') keys = keys.concat(_.keys(day))
+                    });
+                    client.hmget('customer:' + customer_id + ':events:', keys, function(err, bydays){
+                        _.each(bydays, function(day, key){ bydays[key] = JSON.parse(day)});
+                        bydays = _.groupBy(bydays, function(item) {return helper.formattedDate(item.dt)});
+                        callback(err, bydays);
+                    });
+                });
                 break;
             case 'get-by-id':
                 client.hget('customer:' + customer_id + ':events:', data, callback);

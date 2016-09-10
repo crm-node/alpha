@@ -20,7 +20,6 @@ function _buildMonth(scope, start, month, firstday) {
     }
     return daysArr;
 }
-
 function _buildWeek(date, month, firstday, daysArr) {
     var days = [];
     // ====== if 1st day is monday ======
@@ -41,7 +40,6 @@ function _buildWeek(date, month, firstday, daysArr) {
     }
     return days;
 }
-
 function numFmt(num) {
     num = num.toString();
     if (num.length < 2) {
@@ -49,7 +47,6 @@ function numFmt(num) {
     }
     return num;
 }
-
 function generateStringForDate(events) {
     console.log(events)
     var data = "<div>";
@@ -66,6 +63,21 @@ function generateStringForDate(events) {
     }
     return data;
 }
+function getMonth($rootScope, scope, start) {
+    var daysArr =_buildMonth(scope, start, scope.month, scope.firstday);
+    $rootScope.httpRequest("getEventsByDays", 'POST', {dates : daysArr}, function (data) {
+        if(!data.error) {
+            scope.eventList = data.data;
+            _.each(data.data, function (events, k) {
+                scope.eventsHtml[""+k] = generateStringForDate(events);
+            });
+        }
+        else {
+            scope.error = data.error;
+            scope.message = data.message;
+        }
+    });
+}
 
 app.directive("crmcalendar", ['$rootScope', function ($rootScope) {
     return {
@@ -76,7 +88,7 @@ app.directive("crmcalendar", ['$rootScope', function ($rootScope) {
             firstday: "="
         },
         link: function (scope) {
-            
+
             scope.selected = _removeTime(moment());
             scope.month = scope.selected.clone();
 
@@ -85,24 +97,17 @@ app.directive("crmcalendar", ['$rootScope', function ($rootScope) {
             _removeDayTime(start.day(0));
             scope.eventList = {};
             scope.eventsHtml = {};
-            var daysArr =_buildMonth(scope, start, scope.month, scope.firstday);
-            console.log(daysArr)
-            $rootScope.httpRequest("getEventsByDays", 'POST', {dates : daysArr}, function (data) {
-                if(!data.error) {
-                    scope.eventList = data.data;
-                    _.each(data.data, function (events, k) {
-                       // scope.eventsHtml[""+k] = generateStringForDate(events);
-                    });
-                }
-                else {
-                    scope.error = data.error;
-                    scope.message = data.message;
-                }
+            scope.$parent.daysEventsList = {};
 
-            });
+            getMonth($rootScope, scope, start);
 
             scope.select = function (day) {
                 scope.selected = day.date;
+                if(scope.eventList[''+ day.fullName].length) {
+                    scope.$parent.daysEventsList.header = day.date.format('DD MMMM YYYY') + ' : ' + scope.eventList[''+ day.fullName].length + ' events';
+                }
+                scope.$parent.daysEventsList.events = scope.eventList[''+ day.fullName];
+                $('#daysEventsModal').openModal();
             };
 
             scope.next = function () {
@@ -110,7 +115,7 @@ app.directive("crmcalendar", ['$rootScope', function ($rootScope) {
                 _removeDayTime(next.month(next.month() + 1)).date(1);
                 scope.month.month(scope.month.month() + 1);
                 _removeDayTime(next.day(0));
-                _buildMonth(scope, next, scope.month, scope.firstday);
+                getMonth($rootScope, scope, next);
             };
 
             scope.previous = function () {
@@ -118,7 +123,7 @@ app.directive("crmcalendar", ['$rootScope', function ($rootScope) {
                 _removeDayTime(previous.month(previous.month() - 1).date(1));
                 scope.month.month(scope.month.month() - 1);
                 _removeDayTime(previous.day(0));
-                _buildMonth(scope, previous, scope.month, scope.firstday);
+                getMonth($rootScope, scope, previous);
             };
         }
     };

@@ -227,7 +227,7 @@ module.exports = function (app, router, client) {
     app.post('/api/getEventsByDays', function (req, res) {
         autorizationRequest(req.headers.authorization, res, function (userData) {
             redisRequests.events(userData.customer, 'get-by-date', '', req.body.dates, function(err, resp) {
-                console.log(resp);
+                // console.log(resp);
                 helper.parseResponse(err, resp, res)
             });
         });
