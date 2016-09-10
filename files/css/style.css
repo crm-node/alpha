@@ -88,3 +88,9 @@
 #dropdown-user1 {
     top: 64px !important;
 }
+#daysEventsModal .card-action a {
+    padding: 0 1rem;
+}
+#daysEventsModal .card .desc {
+    padding: 10px 0;
+}
