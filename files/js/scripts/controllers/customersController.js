@@ -3,7 +3,11 @@
  */
 app.controller('customersController', ['$http', '$scope', '$rootScope',
     function($http, $scope, $rootScope) {
-
+        $('.modal-trigger').leanModal({
+            ready: function() {
+                $('select').material_select()
+            }
+        });
         $scope.customerToAdd = {};
         $scope.customerList = [];
         $scope.customerToEdit = {};

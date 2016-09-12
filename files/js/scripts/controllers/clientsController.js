@@ -32,6 +32,11 @@ app.controller('clientsController', ['$http', '$scope', '$rootScope',
         };
 
         $scope.getClients = function() {
+            $('.modal-trigger').leanModal({
+                ready: function() {
+                    $('select').material_select()
+                }
+            });
             $scope.clientList = [];
             $rootScope.httpRequest("getClients", 'POST', {}, function (data) {
                 if(!data.error && data.data && data.data['schema']) {

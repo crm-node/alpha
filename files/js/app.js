@@ -28,7 +28,7 @@ app.config(['$routeProvider', '$locationProvider', '$httpProvider',
             //    controller: 'homeController'
             //})
             .when("/transactions", {
-                templateUrl: '/html/transactions.html',
+                templateUrl: '/html/material/transactions.html',
                 controller: 'transactionsController'
             })
             //.when("/transaction/:id", {
@@ -44,7 +44,7 @@ app.config(['$routeProvider', '$locationProvider', '$httpProvider',
             //    controller: 'homeController'
             //})
             .when("/customers", {
-                templateUrl: '/html/customers.html',
+                templateUrl: '/html/material/customers.html',
                 controller: 'customersController'
             })
             .when("/archive", {

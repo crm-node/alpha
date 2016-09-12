@@ -1,0 +1,231 @@
+<div id="clients">
+    <div class="row">
+        <div class="col s12">
+            <div class="clients-top">
+                <a class="waves-effect waves-light btn modal-trigger light-blue darken-1" href="#addTransactionModalIn">Input</a>
+                <a class="waves-effect waves-light btn modal-trigger light-blue darken-1" href="#addTransactionModalOut">Output</a>
+                <a class="waves-effect waves-light btn right grey" ng-click="sendToArchive()">SEND TO ARCHIVE</a>
+                <a class="waves-effect waves-light btn right grey" ng-click="getTransactions() ">UPDATE LIST</a>
+                <a class="waves-effect waves-light btn right grey" ng-click="getTransactionsByDate() ">Tran by dt</a>
+            </div>
+            <div class="filters-menu">
+
+            </div>
+            <table ng-init="getTransactions()" class="highlight striped centered">
+                <thead>
+                <tr>
+                    <th ng-click="changeSortType('dt')">Date
+                        <i class="material-icons" ng-show="sortType == 'dt' && !sortReverse">arrow_upward</i>
+                        <i class="material-icons" ng-show="sortType == 'dt' && sortReverse">arrow_downward</i>
+                    </th>
+
+                    <th ng-click="changeSortType('user_name')">User
+                        <i class="material-icons" ng-show="sortType == 'user_name' && !sortReverse">arrow_upward</i>
+                        <i class="material-icons" ng-show="sortType == 'user_name' && sortReverse">arrow_downward</i>
+                    </th>
+                    <th ng-click="changeSortType('client_name')">Client
+                        <i class="material-icons" ng-show="sortType == 'client_name' && !sortReverse">arrow_upward</i>
+                        <i class="material-icons" ng-show="sortType == 'client_name' && sortReverse">arrow_downward</i>
+                    </th>
+                    <th ng-click="changeSortType('amount')">Amount
+                        <i class="material-icons" ng-show="sortType == 'amount' && !sortReverse">arrow_upward</i>
+                        <i class="material-icons" ng-show="sortType == 'amount' && sortReverse">arrow_downward</i>
+                    </th>
+                    <th ng-click="changeSortType('type')">Type
+                        <i class="material-icons" ng-show="sortType == 'type' && !sortReverse">arrow_upward</i>
+                        <i class="material-icons" ng-show="sortType == 'type' && sortReverse">arrow_downward</i>
+                    </th>
+                    <th>Comment</th>
+                    <th>Transaction Info</th>
+                    <th>Delete Transaction</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="(key, transaction) in transactionList | orderBy:sortType:sortReverse">
+                    <td>
+                        {{transaction.dt | date:"dd.MM.yyyy 'at' HH:mm"}}
+                    </td>
+                    <td>
+                        {{transaction.user_name}}
+                    </td>
+                    <td>
+                        {{transaction.client.client_name}}
+                    </td>
+                    <td>
+                        {{transaction.amount}}
+                    </td>
+                    <td>
+                        {{transaction.type}}
+                    </td>
+                    <td>
+                        {{transaction.comment}}
+                    </td>
+                    <td>
+                        <a class="btn-floating btn-small waves-effect waves-light blue" href="#editTransactionModal" ng-click="prepareEditTransaction(transaction)">
+                            <i class="material-icons">info_outline</i>
+                        </a>
+                    </td>
+                    <th>
+                        <a class="btn-floating btn-small waves-effect waves-light red" href="#confirmDeleteTransactionModal" ng-click="prepareDeleteTransaction(transaction.id, transaction.login)">
+                            <i class="material-icons">close</i>
+                        </a>
+                    </th>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div id="addTransactionModalIn" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">INPUT TRANSACTION</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" role="form" name="transactionAddForm">
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="inputAmount">Amount</label>
+                        <div class="col-sm-10">
+                            <input type="number" class="form-control" id="inputAmount"
+                                   placeholder="Amount" ng-model="transactionToAdd.amount"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="inputType">Type</label>
+                        <select class="form-control" ng-model="transactionToAdd.type" id="inputType">
+                            <option value="Client paid">Client paid</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group" ng-show="transactionToAdd.type == 'Client paid'">
+                        <label class="col-sm-2 control-label" for="inputType">Client</label>
+                        <select class="form-control" ng-model="transactionToAdd.client" id="inputType">
+                            <option value="{{client}}" ng-repeat="client in clientList">{{client.FirstName}} {{client.LastName}}</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="inputComment">Comment</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="inputComment"
+                                   placeholder="Comment" ng-model="transactionToAdd.comment"/>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" ng-click="addTransaction('input')">ADD</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="addTransactionModalOut" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">OUTPUT TRANSACTION</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" role="form" name="transactionAddForm">
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="inputAmount">Amount</label>
+                        <div class="col-sm-10">
+                            <input type="number" class="form-control" id="inputAmount"
+                                   placeholder="Amount" ng-model="transactionToAdd.amount"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="inputType">Type</label>
+                        <select class="form-control" ng-model="transactionToAdd.type" id="inputType">
+                            <option value="Equipment">Equipment</option>
+                            <option value="Clinic">Clinic</option>
+                            <option value="Communal">Communal</option>
+                        </select>
+                    </div>
+                    <!--<div class="form-group" ng-show="transactionToAdd.type == 'Client paid'">-->
+                        <!--<label class="col-sm-2 control-label" for="inputType">Client</label>-->
+                        <!--<select class="form-control" ng-model="transactionToAdd.client_name" id="inputType">-->
+                            <!--<option value="{{client}}" ng-repeat="client in clientList">{{client.FirstName}} {{client.LastName}}</option>-->
+                        <!--</select>-->
+                    <!--</div>-->
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="inputComment">Comment</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="inputComment"
+                                   placeholder="Comment" ng-model="transactionToAdd.comment"/>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" ng-click="addTransaction('output')">ADD</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="confirmDeleteTransactionModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Are you sure you want to delete this transaction?</h4>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" ng-click="deleteTransaction()" data-dismiss="modal">Delete</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="editTransactionModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">EDIT TRANSACTION</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" role="form" name="transactionEditForm">
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="inputAmount">Amount</label>
+                        <div class="col-sm-10">
+                            <input type="number" class="form-control" id="inputAmount"
+                                   placeholder="Amount" ng-model="transactionToEdit.amount"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="inputType">Type</label>
+
+                        <div class="col-sm-10">
+                            <select class="form-control" ng-model="transactionToEdit.type" id="inputType">
+                                <option value="Client paid">Client paid</option>
+                                <option value="Inventory filled">Inventory filled</option>
+                                <option value="Communal payments">Communal payments</option>
+                                <option value="Food">Food</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="inputComment">Comment</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="inputComment"
+                                   placeholder="Comment" ng-model="transactionToEdit.comment"/>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" ng-click="editTransaction()">EDIT</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
